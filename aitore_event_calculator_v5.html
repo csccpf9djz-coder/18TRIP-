@@ -1,0 +1,449 @@
+
+<h2 class="sr-only">エイトリ活動pt計算器 v5 — 毎日10回優惠ダイヤ計算修正版。</h2>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:.75rem 0 2rem;font-family:var(--font-sans)}
+.section{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:.75rem}
+.sec-title{font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.field{display:flex;flex-direction:column;gap:3px}
+.field label{font-size:12px;color:var(--color-text-secondary)}
+.field input,.field select{height:34px;padding:0 9px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-primary);font-size:13px;width:100%}
+.field input:focus,.field select:focus{outline:none;border-color:var(--color-border-primary)}
+.metric{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.65rem;text-align:center}
+.metric-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:3px}
+.metric-val{font-size:16px;font-weight:500;color:var(--color-text-primary)}
+.metric-sub{font-size:10px;color:var(--color-text-tertiary);margin-top:2px}
+.progress-wrap{background:var(--color-background-secondary);border-radius:100px;height:7px;margin:6px 0 3px;overflow:hidden}
+.progress-bar{height:100%;border-radius:100px;background:#378add;transition:width .4s}
+.status{font-size:13px;margin:6px 0;padding:8px 10px;border-radius:var(--border-radius-md);border-left:3px solid}
+.status.ok{background:#EAF3DE;color:#3B6D11;border-color:#639922}
+.status.warn{background:#FAEEDA;color:#854F0B;border-color:#BA7517}
+.tab-row{display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap}
+.tab{padding:4px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);font-size:12px;cursor:pointer}
+.tab.active{background:var(--color-background-info);color:var(--color-text-info);border-color:transparent}
+.chart-wrap{position:relative;width:100%;height:240px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-align:left;padding:5px 7px;border-bottom:0.5px solid var(--color-border-tertiary)}
+td{padding:5px 7px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+tr:last-child td{border-bottom:none}
+tr.today-row td{background:var(--color-background-info)}
+.badge{display:inline-block;padding:1px 7px;border-radius:100px;font-size:10px;font-weight:500;background:#E6F1FB;color:#185FA5}
+.reward-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;font-size:12px}
+.reward-item{display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);border:0.5px solid transparent}
+.reward-item.hl{background:var(--color-background-info);border-color:var(--color-border-info)}
+.reward-item.reached{border-color:#639922}
+.reward-name{color:var(--color-text-secondary);font-size:12px}
+.reward-pt{font-weight:500;color:var(--color-text-primary);font-size:12px}
+.reward-item.hl .reward-name,.reward-item.hl .reward-pt{color:var(--color-text-info)}
+.hint{font-size:11px;color:var(--color-text-tertiary);margin-top:5px}
+.entry-hdr{display:grid;grid-template-columns:62px 1fr 1fr;gap:5px;padding:3px 0;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:2px}
+.entry-hdr span{font-size:11px;color:var(--color-text-secondary);text-align:center}
+.entry-hdr span:first-child{text-align:left}
+.entry-row{display:grid;grid-template-columns:62px 1fr 1fr;gap:5px;align-items:center;padding:4px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.entry-row:last-child{border-bottom:none}
+.day-lbl{font-size:12px;font-weight:500;color:var(--color-text-secondary)}
+.entry-input{height:30px;padding:0 7px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-primary);font-size:13px;width:100%}
+.entry-input:focus{outline:none;border-color:var(--color-border-primary)}
+.diff-cell{text-align:center;font-size:12px;color:var(--color-text-tertiary)}
+.bonus-table-wrap{overflow-x:auto;margin-top:4px}
+.bonus-table{border-collapse:collapse;font-size:11px;width:100%}
+.bonus-table th{padding:3px 8px;font-size:10px;font-weight:500;color:var(--color-text-secondary);border-bottom:0.5px solid var(--color-border-tertiary);text-align:center}
+.bonus-table td{padding:3px 8px;text-align:center;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.bonus-table tr:last-child td{border-bottom:none}
+.bonus-table td.active-cell{background:var(--color-background-info);color:var(--color-text-info);font-weight:500;border-radius:4px}
+.dia-breakdown{font-size:12px;color:var(--color-text-secondary);background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 10px;margin-top:6px;line-height:1.8}
+</style>
+
+<div class="wrap">
+<div class="section">
+  <div class="sec-title">活動設定</div>
+  <div class="grid3" style="margin-bottom:10px">
+    <div class="field"><label>活動開始日（第1天）</label><input type="date" id="startDate"></div>
+    <div class="field"><label>目標活動pt</label>
+      <select id="targetPt">
+        <option value="1200000">Rカード完凸 120萬pt（班/シーズン）</option>
+        <option value="1310000">Rカード①完凸 131萬pt（フィーチャー）</option>
+        <option value="4500000">SRカード完凸 450萬pt（シーズン）</option>
+        <option value="4500018">完走称号 450萬pt（シーズン）</option>
+        <option value="5500000" selected>SRカード完凸 550萬pt（班/フィーチャー）</option>
+        <option value="5500018">完走称号 550萬pt（班）</option>
+        <option value="custom">カスタム入力...</option>
+      </select>
+    </div>
+    <div class="field" id="customPtField" style="display:none"><label>カスタムpt</label><input type="number" id="customPt" placeholder="例: 3000000"></div>
+    <div class="field"><label>イベントスポット難易度</label>
+      <select id="stageDiff">
+        <option value="10500">EASY（10,500pt/次）</option>
+        <option value="10600" selected>NORMAL（10,600pt/次）</option>
+        <option value="10800">HARD（10,800pt/次）</option>
+        <option value="10900">VERY HARD（10,900pt/次）</option>
+      </select>
+    </div>
+  </div>
+  <div class="grid3">
+    <div class="field"><label>SSR特効枚数（0〜6）</label>
+      <select id="ssrCount">
+        <option value="0" selected>0枚（+0%）</option><option value="1">1枚（+20%）</option>
+        <option value="2">2枚（+40%）</option><option value="3">3枚（+60%）</option>
+        <option value="4">4枚（+80%）</option><option value="5">5枚（+110%）</option>
+        <option value="6">6枚 完凸（+150%）</option>
+      </select>
+    </div>
+    <div class="field"><label>SR特効枚数（0〜6）</label>
+      <select id="srCount">
+        <option value="0">0枚（+0%）</option><option value="1">1枚（+8%）</option>
+        <option value="2">2枚（+18%）</option><option value="3" selected>3枚（+30%）</option>
+        <option value="4">4枚（+40%）</option><option value="5">5枚（+50%）</option>
+        <option value="6">6枚 完凸（+60%）</option>
+      </select>
+    </div>
+    <div class="field"><label>R特効枚数（0〜6）</label>
+      <select id="rCount">
+        <option value="0">0枚（+0%）</option><option value="1">1枚（+2%）</option>
+        <option value="2">2枚（+3%）</option><option value="3" selected>3枚（+4%）</option>
+        <option value="4">4枚（+5%）</option><option value="5">5枚（+7%）</option>
+        <option value="6">6枚 完凸（+10%）</option>
+      </select>
+    </div>
+  </div>
+  <div class="grid4" style="margin-top:10px">
+    <div class="field"><label>ダイヤ所持数（個）</label><input type="number" id="diamondCount" value="2300" min="0"></div>
+    <div class="field"><label>シュウマイ（個）</label><input type="number" id="shumai" value="0" min="0"></div>
+    <div class="field"><label>シュウマイ弁当（個）</label><input type="number" id="bentoCount" value="12" min="0"></div>
+    <div class="field"><label>現在の獲得pt</label><input type="number" id="currentPt" value="0" min="0"></div>
+  </div>
+</div>
+
+<div class="grid4" id="metricRow" style="margin-bottom:.75rem"></div>
+<div id="infoBox"></div>
+
+<div class="section">
+  <div class="sec-title">進度 & 分析</div>
+  <div class="tab-row">
+    <button class="tab active" onclick="showTab('chart',this)">走勢圖</button>
+    <button class="tab" onclick="showTab('table',this)">進度表</button>
+    <button class="tab" onclick="showTab('entry',this)">每日記録</button>
+    <button class="tab" onclick="showTab('reward',this)">報酬一覧</button>
+    <button class="tab" onclick="showTab('bonustable',this)">加成表</button>
+  </div>
+  <div id="pane-chart">
+    <div class="chart-wrap"><canvas id="progressChart" role="img" aria-label="活動9日間のpt推移グラフ"></canvas></div>
+    <div id="chartLegend" style="margin-top:8px"></div>
+  </div>
+  <div id="pane-table" style="display:none"></div>
+  <div id="pane-entry" style="display:none">
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">毎日の終わりにptを記録すると走勢圖が更新されます</div>
+    <div class="entry-hdr"><span>日付</span><span>累計pt（実績）</span><span>目標との差</span></div>
+    <div id="entryRows"></div>
+  </div>
+  <div id="pane-reward" style="display:none"></div>
+  <div id="pane-bonustable" style="display:none"></div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const EVENT_DAYS = 9;
+const START_HOUR = 15;
+const END_HOUR = 20;
+const AP_MIN = 30;
+const PT_BASE = 1800;
+const TICKETS_PER_BATTLE = 10;
+const DISCOUNT_PER_DAY = 10;
+
+const SSR_B = [0,20,40,60,80,110,150];
+const SR_B  = [0,8,18,30,40,50,60];
+const R_B   = [0,2,3,4,5,7,10];
+
+const SEASON_RW = [
+  {name:'Rカード1枚目',pt:55000},{name:'イベストEP',pt:170000},{name:'SRカード1枚目',pt:400000},
+  {name:'SRカード2枚目',pt:900000},{name:'Rカード完凸',pt:1200000,hl:true},{name:'SRカード3枚目',pt:1350000},
+  {name:'SRカード4枚目',pt:2000000},{name:'SRカード5枚目',pt:3000000},{name:'SRカード完凸',pt:4500000,hl:true},
+  {name:'完走称号',pt:4500018,hl:true}
+];
+const FEAT_RW = [
+  {name:'Rカード①1枚目',pt:55000},{name:'Rカード②1枚目',pt:75000},{name:'Rカード③1枚目',pt:100000},
+  {name:'イベストEP',pt:190000},{name:'イベント楽曲',pt:300000},{name:'SRカード1枚目',pt:500000},
+  {name:'SRカード2枚目',pt:990000},{name:'Rカード完凸(計)',pt:1350000,hl:true},
+  {name:'SSRカード1枚目',pt:3000000},{name:'SRカード完凸',pt:5500000,hl:true},
+  {name:'SSRカード2枚目',pt:5700000},{name:'SSRカード完凸',pt:18000000,hl:true}
+];
+
+const entryData = Array.from({length:9},()=>({pt:''}));
+let myChart = null;
+let chartUpdateTimer = null;
+
+function fmtPt(n){ return Math.round(n).toLocaleString(); }
+
+function getBonus(){
+  const s=parseInt(document.getElementById('ssrCount').value)||0;
+  const sr=parseInt(document.getElementById('srCount').value)||0;
+  const r=parseInt(document.getElementById('rCount').value)||0;
+  const pct=SSR_B[s]+SR_B[sr]+R_B[r];
+  return {mult:1+pct/100,pct};
+}
+
+function getTarget(){
+  const v=document.getElementById('targetPt').value;
+  if(v==='custom') return parseInt(document.getElementById('customPt').value)||5500000;
+  return parseInt(v)||5500000;
+}
+
+function getDayAP(i){
+  if(i===0) return Math.floor((24-START_HOUR)*60/AP_MIN);
+  if(i===EVENT_DAYS-1) return Math.floor(END_HOUR*60/AP_MIN);
+  return Math.floor(24*60/AP_MIN);
+}
+
+function getDayLabel(i){
+  const d=document.getElementById('startDate').value;
+  if(!d) return `D${i+1}`;
+  const dt=new Date(d); dt.setDate(dt.getDate()+i);
+  return `${dt.getMonth()+1}/${dt.getDate()}`;
+}
+
+// 毎日10回優惠（1鑽1AP）、11回目以降2鑽1AP
+// needAP = 追加で必要なAP回数
+// activeDays = 残り活動日数（優惠リセット回数に影響）
+function calcDiamondCost(needAP, activeDays){
+  const totalDiscount = DISCOUNT_PER_DAY * activeDays; // 例: 9日 × 10回 = 90回分優惠
+  const discountAP = Math.min(needAP, totalDiscount);
+  const fullAP = Math.max(0, needAP - totalDiscount);
+  const cost = discountAP * 1 + fullAP * 2;
+  return {cost, discountAP, fullAP, totalDiscount};
+}
+
+function buildEntryRows(){
+  const target=getTarget();
+  const currentPt=parseInt(document.getElementById('currentPt').value)||0;
+  const container=document.getElementById('entryRows');
+  container.innerHTML='';
+  for(let i=0;i<EVENT_DAYS;i++){
+    const cumT=currentPt+(target-currentPt)*(i+1)/EVENT_DAYS;
+    const row=document.createElement('div');
+    row.className='entry-row';
+
+    const lbl=document.createElement('span');
+    lbl.className='day-lbl';
+    lbl.textContent=getDayLabel(i);
+
+    const inp=document.createElement('input');
+    inp.className='entry-input';
+    inp.type='number';
+    inp.placeholder='pt入力';
+    inp.value=entryData[i].pt;
+    inp.addEventListener('input',function(){
+      entryData[i].pt=this.value;
+      updateDiffCellEl(diffDiv, this.value, cumT);
+      scheduleChartUpdate();
+    });
+
+    const diffDiv=document.createElement('div');
+    diffDiv.className='diff-cell';
+    updateDiffCellEl(diffDiv, entryData[i].pt, cumT);
+
+    row.appendChild(lbl);
+    row.appendChild(inp);
+    row.appendChild(diffDiv);
+    container.appendChild(row);
+  }
+}
+
+function updateDiffCellEl(el,val,cumT){
+  if(val===''||val===null){el.textContent='—';el.style.color='';return;}
+  const ep=parseFloat(val);
+  if(isNaN(ep)){el.textContent='—';el.style.color='';return;}
+  const diff=ep-cumT;
+  el.textContent=(diff>=0?'+':'')+fmtPt(diff);
+  el.style.color=diff>=0?'#3B6D11':'#A32D2D';
+}
+
+function scheduleChartUpdate(){
+  if(chartUpdateTimer) clearTimeout(chartUpdateTimer);
+  chartUpdateTimer=setTimeout(updateChartOnly,150);
+}
+
+function updateChartOnly(){
+  const target=getTarget();
+  const currentPt=parseInt(document.getElementById('currentPt').value)||0;
+  const labels=[],targetLine=[],entryLine=[];
+  for(let i=0;i<EVENT_DAYS;i++){
+    labels.push(getDayLabel(i));
+    targetLine.push(Math.round(currentPt+(target-currentPt)*(i+1)/EVENT_DAYS));
+    const ep=parseFloat(entryData[i].pt);
+    entryLine.push(entryData[i].pt===''?null:Math.round(ep));
+  }
+  if(myChart){
+    myChart.data.labels=labels;
+    myChart.data.datasets[0].data=targetLine;
+    myChart.data.datasets[1].data=entryLine;
+    myChart.update('none');
+  }
+}
+
+function render(){
+  const target=getTarget();
+  const {mult:bonus,pct:bonusPct}=getBonus();
+  const diamonds=parseInt(document.getElementById('diamondCount').value)||0;
+  const stagePt=parseInt(document.getElementById('stageDiff').value)||10600;
+  const currentPt=parseInt(document.getElementById('currentPt').value)||0;
+  const shumai=parseInt(document.getElementById('shumai').value)||0;
+  const bento=parseInt(document.getElementById('bentoCount').value)||0;
+  const startDate=document.getElementById('startDate').value;
+
+  const itemAP=shumai*1+bento*10;
+  let totalAP=0;
+  const days=[];
+  for(let i=0;i<EVENT_DAYS;i++){const ap=getDayAP(i);totalAP+=ap;days.push({ap,label:getDayLabel(i)});}
+
+  const ptPerAP=(PT_BASE+stagePt/TICKETS_PER_BATTLE)*bonus;
+  const availableAP=totalAP+itemAP;
+  const withItemPt=currentPt+availableAP*ptPerAP;
+  const remaining=Math.max(0,target-currentPt);
+  const naturalGap=remaining-totalAP*ptPerAP;
+  const itemGap=remaining-availableAP*ptPerAP;
+
+  const endDateStr=(()=>{
+    if(!startDate) return '未設定';
+    const d=new Date(startDate);d.setDate(d.getDate()+EVENT_DAYS-1);
+    return `${d.getMonth()+1}/${d.getDate()} ${END_HOUR}:00`;
+  })();
+
+  const pct=Math.min(100,Math.round(currentPt/target*100));
+  const pctItem=Math.min(100,Math.round(withItemPt/target*100));
+
+  document.getElementById('metricRow').innerHTML=`
+    <div class="metric"><div class="metric-label">活動結束</div><div class="metric-val" style="font-size:12px">${endDateStr}</div></div>
+    <div class="metric"><div class="metric-label">特効加成</div><div class="metric-val">+${bonusPct}%<span style="font-size:11px"> (${bonus.toFixed(2)}x)</span></div></div>
+    <div class="metric"><div class="metric-label">自然AP合計</div><div class="metric-val">${fmtPt(totalAP)}</div><div class="metric-sub">アイテム込み ${fmtPt(availableAP)}</div></div>
+    <div class="metric"><div class="metric-label">1AP獲得pt</div><div class="metric-val" style="font-size:13px">${fmtPt(ptPerAP)}</div></div>`;
+
+  const totalDiscountAvail = DISCOUNT_PER_DAY * EVENT_DAYS; // 90回
+
+  let info=`<div class="section"><div class="sec-title">達標分析</div>
+    <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:5px">目標：<b style="color:var(--color-text-primary)">${fmtPt(target)} pt</b>　現在：<b style="color:var(--color-text-primary)">${fmtPt(currentPt)} pt</b></div>
+    <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
+    <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:8px">${pct}% 完成　アイテム込み予測 ${pctItem}%</div>`;
+
+  if(naturalGap<=0){
+    info+=`<div class="status ok">自然回復APだけで達標できます！余裕 <b>${fmtPt(-naturalGap)} pt</b>。ダイヤ消費不要！</div>`;
+  } else if(itemGap<=0){
+    const needBento=Math.ceil(naturalGap/ptPerAP/10);
+    info+=`<div class="status ok">自然AP＋アイテムで達標できます！シュウマイ弁当 <b>約${needBento}個</b>あれば大丈夫です。</div>`;
+  } else {
+    const needAP=Math.ceil(itemGap/ptPerAP);
+    const {cost:diaCost, discountAP, fullAP} = calcDiamondCost(needAP, EVENT_DAYS);
+    const shortfall=Math.max(0,diaCost-diamonds);
+
+    if(shortfall===0){
+      info+=`<div class="status ok">アイテム＋ダイヤで達標できます！約 <b>${fmtPt(diaCost)}個</b>のダイヤ使用予定（所持${fmtPt(diamonds)}個）。</div>`;
+    } else {
+      info+=`<div class="status warn">まだ <b>${fmtPt(Math.ceil(itemGap))} pt</b> 足りません。追加で約 <b>${fmtPt(shortfall)}個</b>のダイヤが必要です。</div>`;
+    }
+    info+=`<div class="dia-breakdown">
+      必要追加AP：<b>${fmtPt(needAP)} 回</b><br>
+      　優惠分（1鑽1AP）：${fmtPt(discountAP)} 回 × 1鑽 = <b>${fmtPt(discountAP)} 鑽</b><br>
+      　通常分（2鑽1AP）：${fmtPt(fullAP)} 回 × 2鑽 = <b>${fmtPt(fullAP*2)} 鑽</b><br>
+      　合計消費ダイヤ：<b>${fmtPt(diaCost)} 個</b>（9日間の優惠枠は最大 ${totalDiscountAvail} 回分）
+    </div>`;
+  }
+  info+=`</div>`;
+  document.getElementById('infoBox').innerHTML=info;
+
+  const labels=[],targetLine=[],entryLine=[];
+  for(let i=0;i<EVENT_DAYS;i++){
+    labels.push(days[i].label);
+    targetLine.push(Math.round(currentPt+(target-currentPt)*(i+1)/EVENT_DAYS));
+    const ep=parseFloat(entryData[i].pt);
+    entryLine.push(entryData[i].pt===''?null:Math.round(ep));
+  }
+
+  if(myChart) myChart.destroy();
+  myChart=new Chart(document.getElementById('progressChart'),{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'建議走勢',data:targetLine,borderColor:'#378add',backgroundColor:'rgba(55,138,221,0.07)',borderWidth:2,pointRadius:3,tension:.3,fill:true},
+      {label:'実際進度',data:entryLine,borderColor:'#D85A30',borderWidth:2,pointRadius:5,tension:.2,fill:false,spanGaps:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:(c)=>`${c.dataset.label}: ${fmtPt(c.parsed.y)} pt`}}},
+      scales:{y:{ticks:{callback:(v)=>fmtPt(v)},grid:{color:'rgba(128,128,128,.1)'}},x:{grid:{color:'rgba(128,128,128,.06)'}}}
+    }
+  });
+
+  document.getElementById('chartLegend').innerHTML=`<div style="display:flex;gap:16px;font-size:11px;color:var(--color-text-secondary)">
+    <span style="display:flex;align-items:center;gap:4px"><span style="width:18px;height:2px;background:#378add;display:inline-block"></span>建議走勢</span>
+    <span style="display:flex;align-items:center;gap:4px"><span style="width:18px;height:2px;background:#D85A30;display:inline-block"></span>実際進度</span>
+  </div>`;
+
+  const today=new Date();
+  const startD=startDate?new Date(startDate):null;
+  let tbl=`<div style="overflow-x:auto"><table><thead><tr><th>日付</th><th>日AP</th><th>日獲得pt</th><th>累計目標pt</th><th>差（目標比）</th></tr></thead><tbody>`;
+  let cN=currentPt,cT=currentPt;
+  for(let i=0;i<EVENT_DAYS;i++){
+    const dayPt=days[i].ap*ptPerAP;
+    cN+=dayPt; cT=currentPt+(target-currentPt)*(i+1)/EVENT_DAYS;
+    const diff=cN-cT;
+    const isT=startD&&(()=>{const d=new Date(startDate);d.setDate(d.getDate()+i);return d.toDateString()===today.toDateString();})();
+    tbl+=`<tr ${isT?'class="today-row"':''}><td>${days[i].label}${isT?' <span class="badge">今日</span>':''}</td>
+      <td>${fmtPt(days[i].ap)}</td><td>${fmtPt(dayPt)}</td><td>${fmtPt(cT)}</td>
+      <td style="color:${diff>=0?'#3B6D11':'#A32D2D'}">${diff>=0?'+':''}${fmtPt(diff)}</td></tr>`;
+  }
+  tbl+=`</tbody></table></div>`;
+  document.getElementById('pane-table').innerHTML=tbl;
+
+  buildEntryRows();
+
+  const allRw=[{title:'シーズン/班イベント',items:SEASON_RW},{title:'フィーチャーイベント',items:FEAT_RW}];
+  let rw='';
+  for(const cat of allRw){
+    rw+=`<div style="margin-bottom:12px"><div class="sec-title" style="margin-bottom:6px">${cat.title}</div><div class="reward-grid">`;
+    for(const r of cat.items){
+      const reached=withItemPt>=r.pt;
+      rw+=`<div class="reward-item${r.hl?' hl':''}${reached?' reached':''}">
+        <span class="reward-name">${reached?'✓ ':''}${r.name}</span>
+        <span class="reward-pt">${fmtPt(r.pt)} pt</span></div>`;
+    }
+    rw+=`</div></div>`;
+  }
+  document.getElementById('pane-reward').innerHTML=rw;
+
+  const ssrS=parseInt(document.getElementById('ssrCount').value)||0;
+  const srS=parseInt(document.getElementById('srCount').value)||0;
+  const rS=parseInt(document.getElementById('rCount').value)||0;
+  let bt='<div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px">現在選択中の加成が青くハイライトされています</div>';
+  for(const [lbl,arr,sel] of [['SSR',SSR_B,ssrS],['SR',SR_B,srS],['R',R_B,rS]]){
+    bt+=`<div style="margin-bottom:10px"><div class="sec-title" style="margin-bottom:4px">${lbl}</div><div class="bonus-table-wrap"><table class="bonus-table"><thead><tr>`;
+    for(let i=0;i<=6;i++) bt+=`<th>${i}枚${i===6?'(完凸)':''}</th>`;
+    bt+=`</tr></thead><tbody><tr>`;
+    for(let i=0;i<=6;i++) bt+=`<td class="${i===sel?'active-cell':''}">${arr[i]}%</td>`;
+    bt+=`</tr></tbody></table></div></div>`;
+  }
+  bt+=`<div style="padding:8px 10px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);font-size:12px;color:var(--color-text-secondary)">
+    合計加成：SSR ${SSR_B[ssrS]}% + SR ${SR_B[srS]}% + R ${R_B[rS]}% = <b style="color:var(--color-text-primary)">+${bonusPct}% (${bonus.toFixed(2)}x)</b></div>`;
+  document.getElementById('pane-bonustable').innerHTML=bt;
+}
+
+function showTab(name,el){
+  ['chart','table','entry','reward','bonustable'].forEach(n=>{
+    document.getElementById('pane-'+n).style.display=n===name?'':'none';
+  });
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+document.getElementById('targetPt').addEventListener('change',function(){
+  document.getElementById('customPtField').style.display=this.value==='custom'?'':'none';
+  render();
+});
+document.querySelectorAll('#startDate,#stageDiff,#ssrCount,#srCount,#rCount,#diamondCount,#shumai,#bentoCount,#currentPt,#customPt').forEach(el=>{
+  el.addEventListener('input',render);
+});
+
+document.getElementById('startDate').value=new Date().toISOString().slice(0,10);
+render();
+</script>
