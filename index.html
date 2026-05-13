@@ -3,478 +3,172 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> 18TRIP活動pt計算機 </title>
+<title>18TRIP 活動pt計算機</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 :root {
-  --bg: #0d0f1a;
-  --bg2: #13162a;
-  --bg3: #1a1e35;
-  --border: rgba(255,255,255,0.08);
-  --border-accent: rgba(168,130,255,0.35);
-  --text: #e8e4f8;
-  --text2: #a09bc0;
-  --text3: #6b6590;
-  --accent: #a882ff;
-  --accent2: #ff82c8;
-  --accent3: #82d4ff;
-  --gold: #ffd580;
-  --ok: #6ef0b8;
-  --warn: #ffb86c;
-  --danger: #ff6e8a;
-  --radius: 12px;
-  --radius-sm: 8px;
-  --glow: 0 0 24px rgba(168,130,255,0.18);
+  --bg:       #f9f9f8;
+  --bg2:      #ffffff;
+  --bg3:      #f4f4f2;
+  --bg4:      #eeeeed;
+  --border:   #e5e5e3;
+  --border2:  #d4d4d0;
+  --text:     #1a1a18;
+  --text2:    #5a5a56;
+  --text3:    #9a9a94;
+  --accent:   #d97706;
+  --accent-bg:#fff8ed;
+  --ok:       #16a34a;
+  --ok-bg:    #f0fdf4;
+  --warn:     #d97706;
+  --warn-bg:  #fffbeb;
+  --danger:   #dc2626;
+  --danger-bg:#fef2f2;
+  --radius:   10px;
+  --radius-sm:7px;
+  --shadow:   0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 html { scroll-behavior: smooth; }
-
 body {
-  font-family: 'Noto Sans TC', sans-serif;
+  font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  overflow-x: hidden;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
-/* ─── Background ─── */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 80% 60% at 20% -10%, rgba(168,130,255,0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 90% 80%, rgba(130,212,255,0.08) 0%, transparent 55%),
-    radial-gradient(ellipse 40% 40% at 60% 50%, rgba(255,130,200,0.05) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: 0;
-}
+.container { max-width: 860px; margin: 0 auto; padding: 0 1.25rem 4rem; }
 
-.container {
-  position: relative;
-  z-index: 1;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 0 1.25rem 4rem;
-}
+/* Header */
+header { padding: 2.25rem 0 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1.25rem; }
+.header-inner { display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; }
+.brand { font-size: clamp(1.3rem, 3.5vw, 1.75rem); font-weight: 700; color: var(--accent); letter-spacing: -0.02em; line-height: 1.2; }
+header h1 { font-size: clamp(1.3rem, 3.5vw, 1.75rem); font-weight: 700; color: var(--text); letter-spacing: -0.02em; line-height: 1.2; }
+header .sub { font-size: 12px; color: var(--text3); margin-top: 0.3rem; }
 
-/* ─── Header ─── */
-header {
-  text-align: center;
-  padding: 3rem 0 2.5rem;
-  position: relative;
-}
+/* Card */
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 0.875rem; box-shadow: var(--shadow); }
+.section-label { font-size: 10.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text3); margin-bottom: 1rem; }
 
-.header-eyebrow {
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 0.75rem;
-  opacity: 0.8;
-}
+/* Grids */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.grid4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+@media(max-width:640px){ .grid3,.grid4 { grid-template-columns:1fr 1fr; } }
+@media(max-width:380px){ .grid2,.grid3,.grid4 { grid-template-columns:1fr; } }
 
-header h1 {
-  font-family: 'Noto Serif TC', serif;
-  font-size: clamp(1.8rem, 5vw, 2.8rem);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1.15;
-  background: linear-gradient(135deg, var(--text) 0%, var(--accent) 50%, var(--accent2) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 0.6rem;
-}
-
-header p {
-  font-size: 13px;
-  color: var(--text3);
-  letter-spacing: 0.03em;
-}
-
-.header-divider {
-  width: 60px;
-  height: 2px;
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
-  margin: 1.2rem auto 0;
-  border-radius: 2px;
-}
-
-/* ─── Card ─── */
-.card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-  position: relative;
-  transition: border-color 0.2s;
-}
-.card:hover { border-color: var(--border-accent); }
-
-.card-accent {
-  border-color: var(--border-accent);
-  box-shadow: var(--glow);
-}
-
-.card-title {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.card-title::before {
-  content: '';
-  display: inline-block;
-  width: 3px;
-  height: 14px;
-  background: linear-gradient(180deg, var(--accent), var(--accent2));
-  border-radius: 2px;
-}
-
-/* ─── Grid ─── */
-.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-@media (max-width: 600px) {
-  .grid2, .grid3, .grid4 { grid-template-columns: 1fr 1fr; }
-}
-@media (max-width: 400px) {
-  .grid2, .grid3, .grid4 { grid-template-columns: 1fr; }
-}
-
-/* ─── Field ─── */
-.field { display: flex; flex-direction: column; gap: 5px; }
-.field label {
-  font-size: 11px;
-  color: var(--text3);
-  letter-spacing: 0.04em;
-  font-weight: 500;
-}
+/* Field */
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field label { font-size: 11px; font-weight: 500; color: var(--text2); }
 .field input, .field select {
-  height: 38px;
-  padding: 0 12px;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  font-size: 13px;
-  font-family: 'Noto Sans TC', sans-serif;
-  width: 100%;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  appearance: none;
-  -webkit-appearance: none;
+  height: 36px; padding: 0 10px;
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: var(--radius-sm); color: var(--text);
+  font-size: 13px; font-family: inherit; width: 100%;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  appearance: none; -webkit-appearance: none;
 }
 .field input:focus, .field select:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(168,130,255,0.12);
+  outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(217,119,6,0.12);
 }
 .field select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b6590' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239a9a94' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center;
+  background-color: var(--bg2); padding-right: 28px; cursor: pointer;
 }
 
-/* ─── Metrics ─── */
-.metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1rem; }
-@media (max-width: 600px) { .metric-grid { grid-template-columns: repeat(2, 1fr); } }
+/* Metrics */
+.metric-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; margin-bottom: 0.875rem; }
+@media(max-width:640px){ .metric-grid { grid-template-columns:repeat(3,1fr); } }
+@media(max-width:380px){ .metric-grid { grid-template-columns:repeat(2,1fr); } }
 
-.metric {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1rem 0.75rem;
-  text-align: center;
-  transition: border-color 0.2s;
-}
-.metric:hover { border-color: var(--border-accent); }
-.metric-label { font-size: 10px; color: var(--text3); letter-spacing: 0.08em; margin-bottom: 5px; text-transform: uppercase; }
-.metric-val { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1; }
-.metric-val.accent { color: var(--accent); }
-.metric-sub { font-size: 10px; color: var(--text3); margin-top: 4px; }
+.metric { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.875rem 0.75rem; text-align: center; box-shadow: var(--shadow); }
+.metric-label { font-size: 9.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); margin-bottom: 5px; }
+.metric-val { font-size: 17px; font-weight: 700; color: var(--text); line-height: 1.1; }
+.metric-val.ok   { color: var(--ok); }
+.metric-val.warn { color: var(--warn); }
+.metric-sub { font-size: 10px; color: var(--text3); margin-top: 3px; }
 
-/* ─── Progress ─── */
-.progress-wrap {
-  background: rgba(255,255,255,0.06);
-  border-radius: 100px;
-  height: 6px;
-  margin: 8px 0 4px;
-  overflow: hidden;
-}
-.progress-bar {
-  height: 100%;
-  border-radius: 100px;
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
-  transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
-}
+/* Progress */
+.progress-wrap { background: var(--bg4); border-radius: 100px; height: 5px; margin: 7px 0 3px; overflow: hidden; }
+.progress-bar { height: 100%; border-radius: 100px; background: var(--accent); }
 
-/* ─── Status ─── */
-.status {
-  padding: 10px 14px;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  border-left: 3px solid;
-  margin: 8px 0;
-  line-height: 1.6;
-}
-.status.ok { background: rgba(110,240,184,0.08); color: var(--ok); border-color: var(--ok); }
-.status.warn { background: rgba(255,184,108,0.08); color: var(--warn); border-color: var(--warn); }
-.status.danger { background: rgba(255,110,138,0.1); color: var(--danger); border-color: var(--danger); }
+/* Status */
+.status { padding: 9px 12px; border-radius: var(--radius-sm); font-size: 13px; border-left: 3px solid; margin: 8px 0; line-height: 1.65; }
+.status.ok     { background: var(--ok-bg);    color: var(--ok);    border-color: var(--ok);   }
+.status.warn   { background: var(--warn-bg);  color: var(--warn);  border-color: var(--warn); }
+.status.danger { background: var(--danger-bg);color: var(--danger);border-color: var(--danger); }
 
-.dia-breakdown {
-  background: var(--bg3);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  padding: 10px 14px;
-  font-size: 12px;
-  color: var(--text2);
-  line-height: 2;
-  margin-top: 8px;
-}
+.dia-breakdown { background: var(--bg3); border-radius: var(--radius-sm); border: 1px solid var(--border); padding: 9px 12px; font-size: 12px; color: var(--text2); line-height: 2; margin-top: 6px; }
 .dia-breakdown b { color: var(--text); }
 
-/* ─── Tabs ─── */
-.tab-row {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 1.25rem;
-  flex-wrap: wrap;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 0;
-}
-.tab {
-  padding: 8px 16px;
-  border: none;
-  background: transparent;
-  color: var(--text3);
-  font-size: 12px;
-  font-family: 'Noto Sans TC', sans-serif;
-  font-weight: 500;
-  cursor: pointer;
-  letter-spacing: 0.04em;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  transition: color 0.2s, border-color 0.2s;
-}
+/* Tabs */
+.tab-row { display: flex; gap: 2px; margin-bottom: 1.1rem; border-bottom: 1px solid var(--border); padding-bottom: 0; flex-wrap: wrap; }
+.tab { padding: 7px 14px; border: none; background: transparent; color: var(--text3); font-size: 12.5px; font-family: inherit; font-weight: 500; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.15s, border-color 0.15s; letter-spacing: 0.01em; }
 .tab:hover { color: var(--text2); }
 .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-/* ─── Chart ─── */
-.chart-wrap { position: relative; width: 100%; height: 260px; }
+/* Chart */
+.chart-wrap { position: relative; width: 100%; height: 250px; }
 
-/* ─── Table ─── */
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-th {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--text3);
-  text-align: left;
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--border);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-td {
-  padding: 9px 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  color: var(--text2);
-  font-size: 12px;
-}
-tr:last-child td { border-bottom: none; }
-tr.today-row td { background: rgba(168,130,255,0.07); color: var(--text); }
-tr:hover td { background: rgba(255,255,255,0.03); }
+/* Legend */
+.legend { display: flex; gap: 14px; margin-top: 10px; font-size: 11px; color: var(--text3); flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-line { width: 18px; height: 2px; border-radius: 2px; }
 
-/* ─── Badge ─── */
-.badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 100px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-}
-.badge-purple { background: rgba(168,130,255,0.2); color: var(--accent); }
-.badge-gold { background: rgba(255,213,128,0.15); color: var(--gold); }
-
-/* ─── Entry rows ─── */
-.entry-hdr {
-  display: grid;
-  grid-template-columns: 65px 1fr 1fr;
-  gap: 8px;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 4px;
-}
-.entry-hdr span { font-size: 10px; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; text-align: center; }
+/* Entry */
+.entry-hdr { display: grid; grid-template-columns: 62px 1fr 1fr; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border); margin-bottom: 2px; }
+.entry-hdr span { font-size: 10.5px; font-weight: 600; color: var(--text3); letter-spacing: 0.06em; text-transform: uppercase; text-align: center; }
 .entry-hdr span:first-child { text-align: left; }
-.entry-row {
-  display: grid;
-  grid-template-columns: 65px 1fr 1fr;
-  gap: 8px;
-  align-items: center;
-  padding: 5px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.03);
-}
+.entry-row { display: grid; grid-template-columns: 62px 1fr 1fr; gap: 8px; align-items: center; padding: 4px 0; border-bottom: 1px solid var(--bg3); }
 .entry-row:last-child { border-bottom: none; }
 .day-lbl { font-size: 12px; font-weight: 600; color: var(--text2); }
-.entry-input {
-  height: 32px;
-  padding: 0 10px;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  font-size: 13px;
-  font-family: 'Noto Sans TC', sans-serif;
-  width: 100%;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-.entry-input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(168,130,255,0.12);
-}
+.entry-input { height: 30px; padding: 0 8px; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 13px; font-family: inherit; width: 100%; transition: border-color 0.15s, box-shadow 0.15s; }
+.entry-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(217,119,6,0.12); background: var(--bg2); }
 .diff-cell { text-align: center; font-size: 12px; color: var(--text3); }
 
-/* ─── Reward grid ─── */
-.reward-cat { margin-bottom: 1.5rem; }
-.reward-cat-title {
-  font-size: 11px;
-  color: var(--text3);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-.reward-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-@media (max-width: 480px) { .reward-grid { grid-template-columns: 1fr; } }
-.reward-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 7px 10px;
-  background: var(--bg3);
-  border-radius: var(--radius-sm);
-  border: 1px solid transparent;
-  transition: border-color 0.2s;
-}
-.reward-item.hl { border-color: rgba(168,130,255,0.3); background: rgba(168,130,255,0.07); }
-.reward-item.reached { border-color: rgba(110,240,184,0.3); }
-.reward-name { font-size: 12px; color: var(--text2); }
-.reward-pt { font-size: 12px; font-weight: 600; color: var(--text); }
-.reward-item.hl .reward-name, .reward-item.hl .reward-pt { color: var(--accent); }
-.reward-item.reached .reward-name { color: var(--ok); }
-
-/* ─── Bonus table ─── */
-.bonus-section { margin-bottom: 1rem; }
-.bonus-section-title { font-size: 11px; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+/* Bonus table */
+.bonus-section { margin-bottom: 0.875rem; }
+.bonus-section-title { font-size: 10.5px; font-weight: 600; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 5px; }
 .bonus-table-wrap { overflow-x: auto; }
 .bonus-table { border-collapse: collapse; font-size: 12px; width: 100%; }
-.bonus-table th {
-  padding: 6px 10px;
-  text-align: center;
-  border-bottom: 1px solid var(--border);
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--text3);
-  letter-spacing: 0.05em;
-}
-.bonus-table td { padding: 6px 10px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.03); color: var(--text2); }
+.bonus-table th { padding: 5px 8px; text-align: center; border-bottom: 1px solid var(--border); font-size: 10px; font-weight: 600; color: var(--text3); letter-spacing: 0.06em; }
+.bonus-table td { padding: 5px 8px; text-align: center; border-bottom: 1px solid var(--bg3); color: var(--text2); }
 .bonus-table tr:last-child td { border-bottom: none; }
-.bonus-table td.active-cell {
-  background: rgba(168,130,255,0.15);
-  color: var(--accent);
-  font-weight: 700;
-  border-radius: 6px;
-}
-.bonus-total {
-  background: var(--bg3);
-  border: 1px solid var(--border-accent);
-  border-radius: var(--radius-sm);
-  padding: 10px 14px;
-  font-size: 13px;
-  color: var(--text2);
-  margin-top: 10px;
-}
-.bonus-total b { color: var(--accent); }
+.bonus-table td.active-cell { background: var(--accent-bg); color: var(--accent); font-weight: 700; border-radius: 5px; }
+.bonus-total { background: var(--bg3); border-radius: var(--radius-sm); border: 1px solid var(--border); padding: 9px 12px; font-size: 13px; color: var(--text2); margin-top: 8px; }
+.bonus-total b { color: var(--text); }
 
-/* ─── Legend ─── */
-.legend { display: flex; gap: 16px; margin-top: 10px; font-size: 11px; color: var(--text3); flex-wrap: wrap; }
-.legend-item { display: flex; align-items: center; gap: 6px; }
-.legend-line { width: 20px; height: 2px; border-radius: 2px; }
-
-/* ─── Footer ─── */
-footer {
-  text-align: center;
-  padding: 2rem 0 1rem;
-  font-size: 11px;
-  color: var(--text3);
-  letter-spacing: 0.05em;
-}
-
-/* ─── Hint ─── */
-.hint { font-size: 11px; color: var(--text3); margin-top: 6px; line-height: 1.6; }
-
-/* ─── Save indicator ─── */
-#saveIndicator {
-  position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
-  background: rgba(110,240,184,0.15);
-  border: 1px solid rgba(110,240,184,0.3);
-  color: var(--ok);
-  font-size: 11px;
-  padding: 6px 14px;
-  border-radius: 100px;
-  opacity: 0;
-  transition: opacity 0.3s;
-  pointer-events: none;
-  z-index: 100;
-  letter-spacing: 0.05em;
-}
+/* Save indicator */
+#saveIndicator { position: fixed; bottom: 1.25rem; right: 1.25rem; background: var(--ok-bg); border: 1px solid rgba(22,163,74,0.25); color: var(--ok); font-size: 11px; font-weight: 500; padding: 5px 13px; border-radius: 100px; opacity: 0; transition: opacity 0.25s; pointer-events: none; z-index: 100; letter-spacing: 0.04em; }
 #saveIndicator.show { opacity: 1; }
 
-/* ─── Animations ─── */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.card { animation: fadeUp 0.4s ease both; }
-.card:nth-child(1) { animation-delay: 0.05s; }
-.card:nth-child(2) { animation-delay: 0.1s; }
-.card:nth-child(3) { animation-delay: 0.15s; }
-.metric { animation: fadeUp 0.4s ease both; }
+.hint { font-size: 11px; color: var(--text3); margin-top: 5px; line-height: 1.6; }
 </style>
 </head>
 <body>
+
 <div id="saveIndicator">已自動儲存 ✓</div>
 
 <div class="container">
-  <!-- Header -->
   <header>
-    <div class="header-eyebrow">A3! 活動工具箱</div>
-    <h1>活動 pt 計算器</h1>
-    <p>自動計算活動進度、所需鑽石與建議走勢</p>
-    <div class="header-divider"></div>
+    <div class="header-inner">
+      <span class="brand">18TRIP</span>
+      <h1>活動 pt 計算機</h1>
+    </div>
+    <div class="sub">活動進度所需鑽石，僅參考用</div>
   </header>
 
-  <!-- Settings Card -->
-  <div class="card card-accent">
-    <div class="card-title">基本設定</div>
-    <div class="grid3" style="margin-bottom:1rem">
+  <div class="card">
+    <div class="section-label">基本設定</div>
+    <div class="grid3" style="margin-bottom:10px">
       <div class="field">
         <label>活動開始日（第1天）</label>
         <input type="date" id="startDate">
@@ -482,12 +176,12 @@ footer {
       <div class="field">
         <label>目標活動pt</label>
         <select id="targetPt">
-          <option value="1200000">R卡完凸 120萬pt（班/賽季）</option>
-          <option value="1310000">R卡①完凸 131萬pt（精選）</option>
-          <option value="4500000">SR卡完凸 450萬pt（賽季）</option>
-          <option value="4500018">完走稱號 450萬pt（賽季）</option>
-          <option value="5500000" selected>SR卡完凸 550萬pt（班/精選）</option>
-          <option value="5500018">完走稱號 550萬pt（班）</option>
+          <option value="1200000">R卡完凸 120萬pt（班SP／季節）</option>
+          <option value="1310000">R卡①完凸 131萬pt（Feature）</option>
+          <option value="4500000">SR卡完凸 450萬pt（季節）</option>
+          <option value="4500018">完走稱號 450萬pt（季節）</option>
+          <option value="5500000" selected>SR卡完凸 550萬pt（班SP／Feature）</option>
+          <option value="5500018">完走稱號 550萬pt（班SP）</option>
           <option value="custom">自訂輸入...</option>
         </select>
       </div>
@@ -506,494 +200,489 @@ footer {
       </div>
     </div>
 
-    <div class="grid3" style="margin-bottom:1rem">
+    <div class="grid3" style="margin-bottom:10px">
       <div class="field">
-        <label>SSR 特效枚數（0～6）</label>
+        <label>SSR 特效張數（0～6）</label>
         <select id="ssrCount">
-          <option value="0" selected>0枚（+0%）</option>
-          <option value="1">1枚（+20%）</option>
-          <option value="2">2枚（+40%）</option>
-          <option value="3">3枚（+60%）</option>
-          <option value="4">4枚（+80%）</option>
-          <option value="5">5枚（+110%）</option>
-          <option value="6">6枚 完凸（+150%）</option>
+          <option value="0" selected>0張（+0%）</option>
+          <option value="1">1張（+20%）</option>
+          <option value="2">2張（+40%）</option>
+          <option value="3">3張（+60%）</option>
+          <option value="4">4張（+80%）</option>
+          <option value="5">5張（+110%）</option>
+          <option value="6">6張 完凸（+150%）</option>
         </select>
       </div>
       <div class="field">
-        <label>SR 特效枚數（0～6）</label>
+        <label>SR 特效張數（0～6）</label>
         <select id="srCount">
-          <option value="0">0枚（+0%）</option>
-          <option value="1">1枚（+8%）</option>
-          <option value="2">2枚（+18%）</option>
-          <option value="3" selected>3枚（+30%）</option>
-          <option value="4">4枚（+40%）</option>
-          <option value="5">5枚（+50%）</option>
-          <option value="6">6枚 完凸（+60%）</option>
+          <option value="0">0張（+0%）</option>
+          <option value="1">1張（+8%）</option>
+          <option value="2">2張（+18%）</option>
+          <option value="3" selected>3張（+30%）</option>
+          <option value="4">4張（+40%）</option>
+          <option value="5">5張（+50%）</option>
+          <option value="6">6張 完凸（+60%）</option>
         </select>
       </div>
       <div class="field">
-        <label>R 特效枚數（0～6）</label>
+        <label>R 特效張數（0～6）</label>
         <select id="rCount">
-          <option value="0">0枚（+0%）</option>
-          <option value="1">1枚（+2%）</option>
-          <option value="2">2枚（+3%）</option>
-          <option value="3" selected>3枚（+4%）</option>
-          <option value="4">4枚（+5%）</option>
-          <option value="5">5枚（+7%）</option>
-          <option value value="6">6枚 完凸（+10%）</option>
+          <option value="0">0張（+0%）</option>
+          <option value="1">1張（+2%）</option>
+          <option value="2">2張（+3%）</option>
+          <option value="3" selected>3張（+4%）</option>
+          <option value="4">4張（+5%）</option>
+          <option value="5">5張（+7%）</option>
+          <option value="6">6張 完凸（+10%）</option>
         </select>
       </div>
     </div>
 
-    <div class="grid4">
+    <div class="grid3">
       <div class="field">
         <label>持有鑽石數量（個）</label>
         <input type="number" id="diamondCount" value="0" min="0">
       </div>
       <div class="field">
-        <label>燒賣（個，1個=1AP）</label>
+        <label>燒賣（個，1個＝1AP）</label>
         <input type="number" id="shumai" value="0" min="0">
       </div>
       <div class="field">
-        <label>燒賣便當（個，1個=10AP）</label>
+        <label>燒賣便當（個，1個＝10AP）</label>
         <input type="number" id="bentoCount" value="0" min="0">
-      </div>
-      <div class="field">
-        <label>目前已獲得的pt</label>
-        <input type="number" id="currentPt" value="0" min="0">
       </div>
     </div>
   </div>
 
-  <!-- Metrics -->
   <div class="metric-grid" id="metricRow"></div>
-
-  <!-- Analysis Card -->
   <div id="infoBox"></div>
 
-  <!-- Chart / Table Card -->
   <div class="card">
-    <div class="card-title">進度分析</div>
+    <div class="section-label">進度分析</div>
     <div class="tab-row">
       <button class="tab active" onclick="showTab('chart',this)">走勢圖</button>
-      <button class="tab" onclick="showTab('table',this)">進度表</button>
       <button class="tab" onclick="showTab('entry',this)">每日記錄</button>
-      <button class="tab" onclick="showTab('reward',this)">報酬一覧</button>
       <button class="tab" onclick="showTab('bonustable',this)">加成表</button>
     </div>
 
     <div id="pane-chart">
-      <div class="chart-wrap"><canvas id="progressChart" role="img" aria-label="活動9天建議pt走勢圖"></canvas></div>
+      <div class="chart-wrap"><canvas id="progressChart"></canvas></div>
       <div class="legend" id="chartLegend"></div>
     </div>
-    <div id="pane-table" style="display:none"></div>
     <div id="pane-entry" style="display:none">
-      <div class="hint" style="margin-bottom:10px">每天晚上記錄累計pt，走勢圖將同步更新。資料會自動儲存於瀏覽器，重新開啟仍保留。</div>
+      <div class="hint" style="margin-bottom:10px">每天晚上記錄累計pt，走勢圖將同步更新。資料自動儲存於本機瀏覽器，重新開啟後仍保留。</div>
       <div class="entry-hdr">
-        <span>日期</span>
-        <span>累計pt（實績）</span>
-        <span>與目標的差距</span>
+        <span>日期</span><span>累計pt（實績）</span><span>與目標差距</span>
       </div>
       <div id="entryRows"></div>
     </div>
-    <div id="pane-reward" style="display:none"></div>
     <div id="pane-bonustable" style="display:none"></div>
   </div>
 
-  <footer>18TRIP 活動pt計算器 ・ 資料自動儲存於本機瀏覽器</footer>
 </div>
 
 <script>
-const EVENT_DAYS = 9;
-const START_HOUR = 15;
-const END_HOUR = 20;
-const AP_MIN = 30;
-const PT_BASE = 1800;
-const TPBATTLE = 10;
+const EVENT_DAYS   = 9;
+const START_HOUR   = 15;
+const END_HOUR     = 20;
+const AP_MIN       = 30;
+const PT_BASE      = 1800;
+const TPBATTLE     = 10;
 const DISC_PER_DAY = 10;
 
-const SSR_B = [0,20,40,60,80,110,150];
-const SR_B  = [0,8,18,30,40,50,60];
-const R_B   = [0,2,3,4,5,7,10];
+// ── FIXED bonus arrays (R[6]=10%, not 0) ──
+const SSR_B = [0, 20, 40,  60,  80, 110, 150];
+const SR_B  = [0,  8, 18,  30,  40,  50,  60];
+const R_B   = [0,  2,  3,   4,   5,   7,  10];
 
-const SEASON_RW = [
-  {n:'R卡1枚',pt:55000},{n:'活動劇情EP',pt:170000},{n:'SR卡1枚',pt:400000},
-  {n:'SR卡2枚',pt:900000},{n:'R卡完凸',pt:1200000,hl:true},{n:'SR卡3枚',pt:1350000},
-  {n:'SR卡4枚',pt:2000000},{n:'SR卡5枚',pt:3000000},{n:'SR卡完凸',pt:4500000,hl:true},
-  {n:'完走稱號',pt:4500018,hl:true}
-];
-const FEAT_RW = [
-  {n:'R卡①1枚',pt:55000},{n:'R卡②1枚',pt:75000},{n:'R卡③1枚',pt:100000},
-  {n:'活動劇情EP',pt:190000},{n:'活動樂曲',pt:300000},{n:'SR卡1枚',pt:500000},
-  {n:'SR卡2枚',pt:990000},{n:'R卡完凸（計）',pt:1350000,hl:true},
-  {n:'SSR卡1枚',pt:3000000},{n:'SR卡完凸',pt:5500000,hl:true},
-  {n:'SSR卡2枚',pt:5700000},{n:'SSR卡完凸',pt:18000000,hl:true}
-];
+const STORAGE_KEY = 'aitore_calc_v3';
+let entryData = Array.from({length: EVENT_DAYS}, () => ({pt:''}));
 
-// ─── Persistence ───
-const STORAGE_KEY = 'aitore_calc_v2';
-let entryData = Array.from({length:9},()=>({pt:''}));
-
-function loadData(){
+function loadData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return;
-    const saved = JSON.parse(raw);
-    if(saved.startDate) document.getElementById('startDate').value = saved.startDate;
-    if(saved.targetPt) document.getElementById('targetPt').value = saved.targetPt;
-    if(saved.customPt) document.getElementById('customPt').value = saved.customPt;
-    if(saved.stageDiff) document.getElementById('stageDiff').value = saved.stageDiff;
-    if(saved.ssrCount !== undefined) document.getElementById('ssrCount').value = saved.ssrCount;
-    if(saved.srCount !== undefined) document.getElementById('srCount').value = saved.srCount;
-    if(saved.rCount !== undefined) document.getElementById('rCount').value = saved.rCount;
-    if(saved.diamondCount !== undefined) document.getElementById('diamondCount').value = saved.diamondCount;
-    if(saved.shumai !== undefined) document.getElementById('shumai').value = saved.shumai;
-    if(saved.bentoCount !== undefined) document.getElementById('bentoCount').value = saved.bentoCount;
-    if(saved.currentPt !== undefined) document.getElementById('currentPt').value = saved.currentPt;
-    if(saved.entryData) entryData = saved.entryData;
-    if(saved.targetPt === 'custom') document.getElementById('customPtField').style.display = '';
-  } catch(e){}
-}
-
-let saveTimer = null;
-function saveData(){
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(()=>{
-    try {
-      const data = {
-        startDate: document.getElementById('startDate').value,
-        targetPt: document.getElementById('targetPt').value,
-        customPt: document.getElementById('customPt').value,
-        stageDiff: document.getElementById('stageDiff').value,
-        ssrCount: document.getElementById('ssrCount').value,
-        srCount: document.getElementById('srCount').value,
-        rCount: document.getElementById('rCount').value,
-        diamondCount: document.getElementById('diamondCount').value,
-        shumai: document.getElementById('shumai').value,
-        bentoCount: document.getElementById('bentoCount').value,
-        currentPt: document.getElementById('currentPt').value,
-        entryData
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      showSaveIndicator();
-    } catch(e){}
-  }, 400);
-}
-
-function showSaveIndicator(){
-  const el = document.getElementById('saveIndicator');
-  el.classList.add('show');
-  setTimeout(()=> el.classList.remove('show'), 1800);
-}
-
-// ─── Helpers ───
-function fmtPt(n){ return Math.round(n).toLocaleString(); }
-function getBonus(){
-  const s=+document.getElementById('ssrCount').value||0;
-  const sr=+document.getElementById('srCount').value||0;
-  const r=+document.getElementById('rCount').value||0;
-  const pct=SSR_B[s]+SR_B[sr]+R_B[r];
-  return {mult:1+pct/100,pct};
-}
-function getTarget(){
-  const v=document.getElementById('targetPt').value;
-  if(v==='custom') return +document.getElementById('customPt').value||5500000;
-  return +v||5500000;
-}
-function getDayAP(i){
-  if(i===0) return Math.floor((24-START_HOUR)*60/AP_MIN);
-  if(i===EVENT_DAYS-1) return Math.floor(END_HOUR*60/AP_MIN);
-  return Math.floor(24*60/AP_MIN);
-}
-function getDayLabel(i){
-  const d=document.getElementById('startDate').value;
-  if(!d) return `D${i+1}`;
-  const dt=new Date(d); dt.setDate(dt.getDate()+i);
-  return `${dt.getMonth()+1}/${dt.getDate()}`;
-}
-function calcDiaCost(needAP){
-  const disc=Math.min(needAP, DISC_PER_DAY*EVENT_DAYS);
-  const full=Math.max(0, needAP-DISC_PER_DAY*EVENT_DAYS);
-  return {cost:disc*1+full*2, disc, full};
-}
-
-// ─── Entry rows (stable DOM) ───
-let myChart = null;
-let chartTimer = null;
-
-function buildEntryRows(){
-  const target=getTarget();
-  const currentPt=+document.getElementById('currentPt').value||0;
-  const container=document.getElementById('entryRows');
-  container.innerHTML='';
-  for(let i=0;i<EVENT_DAYS;i++){
-    const cumT=currentPt+(target-currentPt)*(i+1)/EVENT_DAYS;
-    const row=document.createElement('div');
-    row.className='entry-row';
-
-    const lbl=document.createElement('span');
-    lbl.className='day-lbl';
-    lbl.textContent=getDayLabel(i);
-
-    const inp=document.createElement('input');
-    inp.className='entry-input';
-    inp.type='number';
-    inp.placeholder='輸入pt';
-    inp.value=entryData[i].pt;
-    inp.setAttribute('inputmode','numeric');
-
-    const diffDiv=document.createElement('div');
-    diffDiv.className='diff-cell';
-    renderDiff(diffDiv, entryData[i].pt, cumT);
-
-    inp.addEventListener('input',function(){
-      entryData[i].pt=this.value;
-      renderDiff(diffDiv, this.value, cumT);
-      scheduleChartUpdate();
-      saveData();
-    });
-
-    row.appendChild(lbl); row.appendChild(inp); row.appendChild(diffDiv);
-    container.appendChild(row);
+    if (!raw) return;
+    const s = JSON.parse(raw);
+    // 只在值非空時才設定，避免覆蓋預設值
+    const sv = (id, v) => {
+      if (v !== undefined && v !== null && v !== '') {
+        document.getElementById(id).value = v;
+      }
+    };
+    sv('startDate', s.startDate); sv('targetPt', s.targetPt); sv('customPt', s.customPt);
+    sv('stageDiff', s.stageDiff); sv('ssrCount', s.ssrCount); sv('srCount', s.srCount);
+    sv('rCount', s.rCount); sv('diamondCount', s.diamondCount); sv('shumai', s.shumai);
+    sv('bentoCount', s.bentoCount);
+    if (Array.isArray(s.entryData) && s.entryData.length === EVENT_DAYS) {
+      entryData = s.entryData;
+    }
+    if (s.targetPt === 'custom') document.getElementById('customPtField').style.display = '';
+  } catch(e) {
+    console.warn('loadData error:', e);
   }
 }
 
-function renderDiff(el,val,cumT){
-  if(val===''||val===null){el.textContent='—';el.style.color='';return;}
-  const ep=parseFloat(val);
-  if(isNaN(ep)){el.textContent='—';el.style.color='';return;}
-  const diff=ep-cumT;
-  el.textContent=(diff>=0?'+':'')+fmtPt(diff);
-  el.style.color=diff>=0?'#6ef0b8':'#ff6e8a';
+let saveTimer = null;
+function saveData() {
+  // 立刻儲存一次（不延遲），確保資料不會因頁面關閉而遺失
+  _doSave();
+  // 同時清除舊的延遲任務
+  clearTimeout(saveTimer);
 }
 
-function scheduleChartUpdate(){
+function _doSave() {
+  try {
+    const payload = JSON.stringify({
+      startDate: g('startDate'), targetPt: g('targetPt'), customPt: g('customPt'),
+      stageDiff: g('stageDiff'), ssrCount: g('ssrCount'), srCount: g('srCount'),
+      rCount: g('rCount'), diamondCount: g('diamondCount'), shumai: g('shumai'),
+      bentoCount: g('bentoCount'), entryData
+    });
+    localStorage.setItem(STORAGE_KEY, payload);
+    const el = document.getElementById('saveIndicator');
+    if (el) { el.classList.add('show'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 1800); }
+  } catch(e) {
+    console.warn('saveData error:', e);
+  }
+}
+
+function g(id) { return document.getElementById(id).value; }
+function fmtPt(n) { return Math.round(n).toLocaleString(); }
+
+// 從每日記錄取得最新一筆有效pt（最後一天有值的那筆）
+function getCurrentPt() {
+  for (let i = EVENT_DAYS - 1; i >= 0; i--) {
+    const v = parseFloat(entryData[i].pt);
+    if (!isNaN(v) && entryData[i].pt !== '') return v;
+  }
+  return 0;
+}
+
+function getBonus() {
+  const ssr = parseInt(g('ssrCount')) || 0;
+  const sr  = parseInt(g('srCount'))  || 0;
+  const r   = parseInt(g('rCount'))   || 0;
+  const pct = SSR_B[ssr] + SR_B[sr] + R_B[r];
+  return { mult: 1 + pct / 100, pct };
+}
+
+function getTarget() {
+  const v = g('targetPt');
+  if (v === 'custom') return parseInt(g('customPt')) || 5500000;
+  return parseInt(v) || 5500000;
+}
+
+function getDayAP(i) {
+  if (i === 0)            return Math.floor((24 - START_HOUR) * 60 / AP_MIN);
+  if (i === EVENT_DAYS-1) return Math.floor(END_HOUR * 60 / AP_MIN);
+  return Math.floor(24 * 60 / AP_MIN);
+}
+
+function getDayLabel(i) {
+  const d = g('startDate');
+  if (!d) return `D${i+1}`;
+  const dt = new Date(d);
+  dt.setDate(dt.getDate() + i);
+  return `${dt.getMonth()+1}/${dt.getDate()}`;
+}
+
+// 計算從現在起還剩幾天的優惠名額（每天前10次 1鑽1AP）
+// 若活動尚未開始 → 用全 EVENT_DAYS 天；活動中 → 從今天算起剩幾天
+function getRemainingDiscDays() {
+  const startDate = g('startDate');
+  if (!startDate) return EVENT_DAYS;
+  const now = new Date();
+
+  // 用 'T00:00:00' 強制當地時間解析，避免時區偏移問題
+  const evStart = new Date(startDate + 'T00:00:00');
+  evStart.setHours(START_HOUR, 0, 0, 0);
+
+  const evEnd = new Date(startDate + 'T00:00:00');
+  evEnd.setDate(evEnd.getDate() + EVENT_DAYS - 1);
+  evEnd.setHours(END_HOUR, 0, 0, 0);
+
+  if (now <= evStart) return EVENT_DAYS;
+  if (now >= evEnd)   return 0;
+
+  // 以午夜日曆日期差計算「已過幾天」，避免夏令時等問題
+  const startMidnight = new Date(startDate + 'T00:00:00');
+  const nowMidnight   = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const daysPassed    = Math.floor((nowMidnight - startMidnight) / 86400000);
+  // 今天仍算剩餘（有優惠），所以剩餘天數 = 總天數 - 已完全過去的天數
+  return Math.max(1, EVENT_DAYS - daysPassed);
+}
+
+function calcDiaCost(needAP) {
+  const discDays = getRemainingDiscDays();
+  const discQuota = DISC_PER_DAY * discDays; // 剩餘優惠名額
+  const disc = Math.min(needAP, discQuota);
+  const full  = Math.max(0, needAP - discQuota);
+  return { cost: disc + full * 2, disc, full, discDays, discQuota };
+}
+
+function calcRemainingAP() {
+  const startDate = g('startDate');
+  if (!startDate) return null;
+  const now = new Date();
+  const evStart = new Date(startDate + 'T00:00:00');
+  evStart.setHours(START_HOUR, 0, 0, 0);
+  const evEnd = new Date(startDate + 'T00:00:00');
+  evEnd.setDate(evEnd.getDate() + EVENT_DAYS - 1);
+  evEnd.setHours(END_HOUR, 0, 0, 0);
+  if (now < evStart || now > evEnd) return null;
+  return Math.floor((evEnd - now) / 60000 / AP_MIN);
+}
+
+let myChart = null, chartTimer = null, liveTimer = null;
+
+function scheduleChartUpdate() {
   clearTimeout(chartTimer);
-  chartTimer=setTimeout(()=>{
-    const target=getTarget();
-    const currentPt=+document.getElementById('currentPt').value||0;
-    const labels=[],tl=[],el2=[];
-    for(let i=0;i<EVENT_DAYS;i++){
+  chartTimer = setTimeout(() => {
+    const target = getTarget();
+    const labels=[], tl=[], el2=[];
+    for (let i=0; i<EVENT_DAYS; i++) {
       labels.push(getDayLabel(i));
-      tl.push(Math.round(currentPt+(target-currentPt)*(i+1)/EVENT_DAYS));
-      const ep=parseFloat(entryData[i].pt);
-      el2.push(entryData[i].pt===''?null:Math.round(ep));
+      tl.push(Math.round(target / EVENT_DAYS * (i+1)));
+      const ep = parseFloat(entryData[i].pt);
+      el2.push(entryData[i].pt==='' ? null : Math.round(ep));
     }
-    if(myChart){
+    if (myChart) {
       myChart.data.labels=labels;
       myChart.data.datasets[0].data=tl;
       myChart.data.datasets[1].data=el2;
       myChart.update('none');
     }
-  },150);
+  }, 150);
 }
 
-// ─── Main render ───
-function render(){
-  const target=getTarget();
-  const {mult:bonus,pct:bonusPct}=getBonus();
-  const diamonds=+document.getElementById('diamondCount').value||0;
-  const stagePt=+document.getElementById('stageDiff').value||10600;
-  const currentPt=+document.getElementById('currentPt').value||0;
-  const shumai=+document.getElementById('shumai').value||0;
-  const bento=+document.getElementById('bentoCount').value||0;
-  const startDate=document.getElementById('startDate').value;
+function renderDiff(el, val, cumT) {
+  if (val==='' || val===null) { el.textContent='—'; el.style.color=''; return; }
+  const ep = parseFloat(val);
+  if (isNaN(ep)) { el.textContent='—'; el.style.color=''; return; }
+  const diff = ep - cumT;
+  el.textContent = (diff>=0?'+':'') + fmtPt(diff);
+  el.style.color = diff>=0 ? '#16a34a' : '#dc2626';
+}
 
-  const itemAP=shumai+bento*10;
-  let totalAP=0;
-  const days=[];
-  for(let i=0;i<EVENT_DAYS;i++){const ap=getDayAP(i);totalAP+=ap;days.push({ap,label:getDayLabel(i)});}
+function buildEntryRows() {
+  const target = getTarget();
+  const container = document.getElementById('entryRows');
+  container.innerHTML = '';
+  for (let i=0; i<EVENT_DAYS; i++) {
+    // 每天目標 = 目標pt ÷ 9 × 第(i+1)天，與現在累積pt無關
+    const cumT = target / EVENT_DAYS * (i+1);
+    const row = document.createElement('div'); row.className='entry-row';
+    const lbl = document.createElement('span'); lbl.className='day-lbl'; lbl.textContent=getDayLabel(i);
+    const inp = document.createElement('input');
+    inp.className='entry-input'; inp.type='number'; inp.placeholder='輸入pt';
+    inp.setAttribute('inputmode','numeric'); inp.value=entryData[i].pt;
+    const diffDiv = document.createElement('div'); diffDiv.className='diff-cell';
+    renderDiff(diffDiv, entryData[i].pt, cumT);
+    inp.addEventListener('input', function() {
+      entryData[i].pt=this.value;
+      renderDiff(diffDiv, this.value, cumT);
+      scheduleChartUpdate(); saveData();
+    });
+    row.appendChild(lbl); row.appendChild(inp); row.appendChild(diffDiv);
+    container.appendChild(row);
+  }
+}
 
-  const ptPerAP=(PT_BASE+stagePt/TPBATTLE)*bonus;
-  const withItemPt=currentPt+(totalAP+itemAP)*ptPerAP;
-  const remaining=Math.max(0,target-currentPt);
-  const natGap=remaining-totalAP*ptPerAP;
-  const itemGap=remaining-(totalAP+itemAP)*ptPerAP;
+function startLiveTicker() {
+  clearInterval(liveTimer);
+  liveTimer = setInterval(() => {
+    const el = document.getElementById('liveAP');
+    if (!el) return;
+    const ap = calcRemainingAP();
+    if (ap===null) { el.textContent='—'; el.className='metric-val'; return; }
+    el.textContent = fmtPt(ap) + ' AP';
+    el.className = 'metric-val ' + (ap > 50 ? 'ok' : 'warn');
+  }, 10000);
+}
 
-  const endDateStr=(()=>{
-    if(!startDate) return '尚未設定';
-    const d=new Date(startDate);d.setDate(d.getDate()+EVENT_DAYS-1);
+function render() {
+  const target = getTarget();
+  const { mult:bonus, pct:bonusPct } = getBonus();
+  const diamonds  = parseInt(g('diamondCount')) || 0;
+  const stagePt   = parseInt(g('stageDiff'))    || 10600;
+  const currentPt = getCurrentPt();
+  const shumai    = parseInt(g('shumai'))        || 0;
+  const bento     = parseInt(g('bentoCount'))    || 0;
+  const startDate = g('startDate');
+
+  const itemAP = shumai + bento * 10;
+  let totalAP = 0;
+  const days = [];
+  for (let i=0; i<EVENT_DAYS; i++) {
+    const ap = getDayAP(i); totalAP += ap;
+    days.push({ ap, label: getDayLabel(i) });
+  }
+
+  const ptPerAP    = (PT_BASE + stagePt / TPBATTLE) * bonus;
+  const withItemPt = currentPt + (totalAP + itemAP) * ptPerAP;
+  const remaining  = Math.max(0, target - currentPt);
+  const natGap     = remaining - totalAP * ptPerAP;
+  const itemGap    = remaining - (totalAP + itemAP) * ptPerAP;
+
+  const endDateStr = (() => {
+    if (!startDate) return '尚未設定';
+    const d = new Date(startDate + 'T00:00:00');
+    d.setDate(d.getDate() + EVENT_DAYS - 1);
     return `${d.getMonth()+1}/${d.getDate()} ${END_HOUR}:00`;
   })();
 
-  const pct=Math.min(100,Math.round(currentPt/target*100));
-  const pctItem=Math.min(100,Math.round(withItemPt/target*100));
+  const pct     = Math.min(100, Math.round(currentPt / target * 100));
+  const pctItem = Math.min(100, Math.round(withItemPt / target * 100));
+
+  const liveAP = calcRemainingAP();
+  const liveStr = liveAP !== null ? fmtPt(liveAP) + ' AP' : '—';
+  const liveCls = liveAP !== null ? (liveAP > 50 ? 'ok' : 'warn') : '';
 
   // Metrics
-  document.getElementById('metricRow').innerHTML=`
-    <div class="metric"><div class="metric-label">活動結束</div><div class="metric-val" style="font-size:13px">${endDateStr}</div></div>
-    <div class="metric"><div class="metric-label">特效加成</div><div class="metric-val accent">+${bonusPct}%</div><div class="metric-sub">${bonus.toFixed(2)}x 倍率</div></div>
-    <div class="metric"><div class="metric-label">自然AP合計</div><div class="metric-val">${fmtPt(totalAP)}</div><div class="metric-sub">含道具 ${fmtPt(totalAP+itemAP)}</div></div>
-    <div class="metric"><div class="metric-label">每1AP獲得pt</div><div class="metric-val" style="font-size:14px">${fmtPt(ptPerAP)}</div></div>`;
+  document.getElementById('metricRow').innerHTML = `
+    <div class="metric">
+      <div class="metric-label">活動結束</div>
+      <div class="metric-val" style="font-size:12px">${endDateStr}</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">特效加成</div>
+      <div class="metric-val" style="color:var(--accent)">+${bonusPct}%</div>
+      <div class="metric-sub">${bonus.toFixed(2)}x 倍率</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">自然AP合計</div>
+      <div class="metric-val">${fmtPt(totalAP)}</div>
+      <div class="metric-sub">含道具 ${fmtPt(totalAP+itemAP)}</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">每1AP獲得pt</div>
+      <div class="metric-val" style="font-size:14px">${fmtPt(ptPerAP)}</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">剩餘免費AP</div>
+      <div class="metric-val ${liveCls}" style="font-size:14px" id="liveAP">${liveStr}</div>
+      <div class="metric-sub">依現在時間即時計算</div>
+    </div>`;
 
   // Analysis
-  let info=`<div class="card" style="margin-bottom:1rem">
-    <div class="card-title">達標分析</div>
-    <div style="font-size:13px;color:var(--text2);margin-bottom:6px">
+  let info = `<div class="card" style="margin-bottom:0.875rem">
+    <div class="section-label">達標分析</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:5px">
       目標：<span style="color:var(--text);font-weight:600">${fmtPt(target)} pt</span>
       ・現在：<span style="color:var(--text);font-weight:600">${fmtPt(currentPt)} pt</span>
     </div>
     <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
     <div style="font-size:11px;color:var(--text3);margin-bottom:10px">${pct}% 完成・含道具預估可達 ${pctItem}%</div>`;
 
-  if(natGap<=0){
-    info+=`<div class="status ok">✓ 自然回復AP即可達標！還有餘裕 <strong>${fmtPt(-natGap)} pt</strong>，無需消耗鑽石。</div>`;
-  } else if(itemGap<=0){
-    const nb=Math.ceil(natGap/ptPerAP/10);
-    info+=`<div class="status ok">✓ 自然AP＋道具可達標！使用燒賣便當 <strong>約${nb}個</strong>即可。</div>`;
+  if (natGap <= 0) {
+    info += `<div class="status ok">✓ 自然回復AP即可達標！還有餘裕 <strong>${fmtPt(-natGap)} pt</strong>，無需消耗鑽石。</div>`;
+  } else if (itemGap <= 0) {
+    const nb = Math.ceil(natGap / ptPerAP / 10);
+    info += `<div class="status ok">✓ 自然AP＋道具可達標！使用燒賣便當約 <strong>${nb} 個</strong>即可。</div>`;
   } else {
-    const needAP=Math.ceil(itemGap/ptPerAP);
-    const {cost,disc,full}=calcDiaCost(needAP);
-    const short=Math.max(0,cost-diamonds);
-    if(short===0){
-      info+=`<div class="status ok">✓ 道具＋鑽石可達標！預計消耗約 <strong>${fmtPt(cost)} 個鑽石</strong>（持有 ${fmtPt(diamonds)} 個）。</div>`;
+    const needAP = Math.ceil(itemGap / ptPerAP);
+    const { cost, disc, full, discDays, discQuota } = calcDiaCost(needAP);
+    const short = Math.max(0, cost - diamonds);
+    if (short === 0) {
+      info += `<div class="status ok">✓ 道具＋鑽石可達標！預計消耗約 <strong>${fmtPt(cost)} 個鑽石</strong>（持有 ${fmtPt(diamonds)} 個）。</div>`;
     } else {
-      info+=`<div class="status warn">⚠ 仍差 <strong>${fmtPt(Math.ceil(itemGap))} pt</strong>，還需要額外 <strong>${fmtPt(short)} 個鑽石</strong>。</div>`;
+      info += `<div class="status warn">⚠ 仍差 <strong>${fmtPt(Math.ceil(itemGap))} pt</strong>，還需額外約 <strong>${fmtPt(short)} 個鑽石</strong>。</div>`;
     }
-    info+=`<div class="dia-breakdown">
-      需要追加AP：<b>${fmtPt(needAP)} 次</b><br>
-      　優惠部分（每天前10次・1鑽1AP）：${fmtPt(disc)} 次 × 1鑽 = <b>${fmtPt(disc)} 鑽</b><br>
-      　一般部分（11次起・2鑽1AP）：${fmtPt(full)} 次 × 2鑽 = <b>${fmtPt(full*2)} 鑽</b><br>
-      　合計消耗鑽石：<b>${fmtPt(cost)} 個</b>（9天優惠名額最多共 ${DISC_PER_DAY*EVENT_DAYS} 次）
+    info += `<div class="dia-breakdown">
+      需追加AP：<b>${fmtPt(needAP)} 次</b><br>
+      　優惠部分（每天前10次・1鑽1AP）：${fmtPt(disc)} 次 × 1鑽 ＝ <b>${fmtPt(disc)} 鑽</b><br>
+      　一般部分（11次起・2鑽1AP）：${fmtPt(full)} 次 × 2鑽 ＝ <b>${fmtPt(full*2)} 鑽</b><br>
+      　合計消耗鑽石：<b>${fmtPt(cost)} 個</b>（剩餘 ${discDays} 天，優惠名額還剩 ${fmtPt(discQuota)} 次）
     </div>`;
   }
-  info+=`</div>`;
-  document.getElementById('infoBox').innerHTML=info;
+  info += `</div>`;
+  document.getElementById('infoBox').innerHTML = info;
 
   // Chart
-  const labels=[],tl=[],el2=[];
-  for(let i=0;i<EVENT_DAYS;i++){
+  const labels=[], tl=[], el2=[];
+  for (let i=0; i<EVENT_DAYS; i++) {
     labels.push(days[i].label);
-    tl.push(Math.round(currentPt+(target-currentPt)*(i+1)/EVENT_DAYS));
-    const ep=parseFloat(entryData[i].pt);
-    el2.push(entryData[i].pt===''?null:Math.round(ep));
+    tl.push(Math.round(target / EVENT_DAYS * (i+1)));
+    const ep = parseFloat(entryData[i].pt);
+    el2.push(entryData[i].pt==='' ? null : Math.round(ep));
   }
-  if(myChart) myChart.destroy();
-  const ctx=document.getElementById('progressChart');
-  myChart=new Chart(ctx,{
-    type:'line',
-    data:{labels,datasets:[
-      {label:'建議走勢',data:tl,borderColor:'#a882ff',backgroundColor:'rgba(168,130,255,0.08)',borderWidth:2,pointRadius:3,tension:.35,fill:true},
-      {label:'實際進度',data:el2,borderColor:'#ff82c8',borderWidth:2.5,pointRadius:5,pointBackgroundColor:'#ff82c8',tension:.2,fill:false,spanGaps:false}
+  if (myChart) myChart.destroy();
+  myChart = new Chart(document.getElementById('progressChart'), {
+    type: 'line',
+    data: { labels, datasets: [
+      { label:'建議走勢', data:tl, borderColor:'#d97706', backgroundColor:'rgba(217,119,6,0.06)', borderWidth:2, pointRadius:3, pointBackgroundColor:'#d97706', tension:.35, fill:true },
+      { label:'實際進度', data:el2, borderColor:'#2563eb', backgroundColor:'transparent', borderWidth:2.5, pointRadius:5, pointBackgroundColor:'#2563eb', tension:.2, fill:false, spanGaps:false }
     ]},
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      interaction:{mode:'index',intersect:false},
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
       plugins:{
-        legend:{display:false},
-        tooltip:{
-          backgroundColor:'rgba(13,15,26,0.92)',
-          borderColor:'rgba(168,130,255,0.3)',
-          borderWidth:1,
-          titleColor:'#a09bc0',
-          bodyColor:'#e8e4f8',
-          padding:10,
-          callbacks:{label:(c)=>`${c.dataset.label}: ${fmtPt(c.parsed.y)} pt`}
-        }
+        legend:{ display:false },
+        tooltip:{ backgroundColor:'#fff', borderColor:'#e5e5e3', borderWidth:1, titleColor:'#5a5a56', bodyColor:'#1a1a18', padding:10,
+          callbacks:{ label:(c)=>`${c.dataset.label}: ${fmtPt(c.parsed.y)} pt` } }
       },
       scales:{
-        y:{
-          ticks:{color:'#6b6590',callback:(v)=>fmtPt(v),font:{size:10}},
-          grid:{color:'rgba(255,255,255,0.04)'},
-          border:{color:'transparent'}
-        },
-        x:{
-          ticks:{color:'#6b6590',font:{size:10}},
-          grid:{color:'rgba(255,255,255,0.03)'},
-          border:{color:'rgba(255,255,255,0.06)'}
-        }
+        y:{ ticks:{color:'#9a9a94',callback:(v)=>fmtPt(v),font:{size:10}}, grid:{color:'rgba(0,0,0,0.05)'}, border:{color:'transparent'} },
+        x:{ ticks:{color:'#9a9a94',font:{size:10}}, grid:{color:'rgba(0,0,0,0.03)'}, border:{color:'#e5e5e3'} }
       }
     }
   });
-  document.getElementById('chartLegend').innerHTML=`
-    <div class="legend-item"><div class="legend-line" style="background:#a882ff"></div><span>建議走勢</span></div>
-    <div class="legend-item"><div class="legend-line" style="background:#ff82c8"></div><span>實際進度</span></div>`;
-
-  // Progress table
-  let tbl=`<div class="table-wrap"><table><thead><tr>
-    <th>日期</th><th>當日AP</th><th>當日pt</th><th>累計目標pt</th><th>差距</th>
-  </tr></thead><tbody>`;
-  const today=new Date();
-  const startD=startDate?new Date(startDate):null;
-  let cN=currentPt,cT=currentPt;
-  for(let i=0;i<EVENT_DAYS;i++){
-    const dp=days[i].ap*ptPerAP;
-    cN+=dp; cT=currentPt+(target-currentPt)*(i+1)/EVENT_DAYS;
-    const diff=cN-cT;
-    const isT=startD&&(()=>{const d=new Date(startDate);d.setDate(d.getDate()+i);return d.toDateString()===today.toDateString();})();
-    tbl+=`<tr${isT?' class="today-row"':''}>
-      <td>${days[i].label}${isT?' <span class="badge badge-purple">今天</span>':''}</td>
-      <td>${fmtPt(days[i].ap)}</td>
-      <td>${fmtPt(dp)}</td>
-      <td>${fmtPt(cT)}</td>
-      <td style="color:${diff>=0?'#6ef0b8':'#ff6e8a'};font-weight:600">${diff>=0?'+':''}${fmtPt(diff)}</td>
-    </tr>`;
-  }
-  tbl+=`</tbody></table></div>`;
-  document.getElementById('pane-table').innerHTML=tbl;
+  document.getElementById('chartLegend').innerHTML = `
+    <div class="legend-item"><div class="legend-line" style="background:#d97706"></div><span>建議走勢</span></div>
+    <div class="legend-item"><div class="legend-line" style="background:#2563eb"></div><span>實際進度</span></div>`;
 
   // Entry rows
   buildEntryRows();
 
-  // Rewards
-  const allRw=[{t:季節 / 班活動',items:SEASON_RW},{t:'sp活動',items:FEAT_RW}];
-  let rw='';
-  for(const cat of allRw){
-    rw+=`<div class="reward-cat"><div class="reward-cat-title">${cat.t}</div><div class="reward-grid">`;
-    for(const r of cat.items){
-      const reached=withItemPt>=r.pt;
-      rw+=`<div class="reward-item${r.hl?' hl':''}${reached?' reached':''}">
-        <span class="reward-name">${reached?'✓ ':''}${r.n}</span>
-        <span class="reward-pt">${fmtPt(r.pt)} pt</span>
-      </div>`;
-    }
-    rw+=`</div></div>`;
-  }
-  document.getElementById('pane-reward').innerHTML=rw;
-
   // Bonus table
-  const ssrS=+document.getElementById('ssrCount').value||0;
-  const srS=+document.getElementById('srCount').value||0;
-  const rS=+document.getElementById('rCount').value||0;
-  let bt='';
-  for(const [lbl,arr,sel] of [['SSR',SSR_B,ssrS],['SR',SR_B,srS],['R',R_B,rS]]){
-    bt+=`<div class="bonus-section"><div class="bonus-section-title">${lbl} 特效加成</div>
+  const ssrS = parseInt(g('ssrCount')) || 0;
+  const srS  = parseInt(g('srCount'))  || 0;
+  const rS   = parseInt(g('rCount'))   || 0;
+  let bt = '';
+  for (const [lbl, arr, sel] of [['SSR',SSR_B,ssrS],['SR',SR_B,srS],['R',R_B,rS]]) {
+    bt += `<div class="bonus-section"><div class="bonus-section-title">${lbl} 特效加成</div>
       <div class="bonus-table-wrap"><table class="bonus-table"><thead><tr>`;
-    for(let i=0;i<=6;i++) bt+=`<th>${i}枚${i===6?' 完凸':''}</th>`;
-    bt+=`</tr></thead><tbody><tr>`;
-    for(let i=0;i<=6;i++) bt+=`<td class="${i===sel?'active-cell':''}">${arr[i]}%</td>`;
-    bt+=`</tr></tbody></table></div></div>`;
+    for (let i=0; i<=6; i++) bt += `<th>${i}張${i===6?' 完凸':''}</th>`;
+    bt += `</tr></thead><tbody><tr>`;
+    for (let i=0; i<=6; i++) bt += `<td class="${i===sel?'active-cell':''}">${arr[i]}%</td>`;
+    bt += `</tr></tbody></table></div></div>`;
   }
-  bt+=`<div class="bonus-total">
+  bt += `<div class="bonus-total">
     合計加成：SSR ${SSR_B[ssrS]}% ＋ SR ${SR_B[srS]}% ＋ R ${R_B[rS]}%
     ＝ <b>+${bonusPct}%（${bonus.toFixed(2)}x 倍率）</b>
   </div>`;
-  document.getElementById('pane-bonustable').innerHTML=bt;
+  document.getElementById('pane-bonustable').innerHTML = bt;
+
+  startLiveTicker();
 }
 
-function showTab(name,el){
-  ['chart','table','entry','reward','bonustable'].forEach(n=>{
-    document.getElementById('pane-'+n).style.display=n===name?'':'none';
+function showTab(name, el) {
+  ['chart','entry','bonustable'].forEach(n => {
+    document.getElementById('pane-'+n).style.display = n===name ? '' : 'none';
   });
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
 }
 
-// ─── Init ───
+// Init
 loadData();
 
-document.getElementById('targetPt').addEventListener('change',function(){
-  document.getElementById('customPtField').style.display=this.value==='custom'?'':'none';
+document.getElementById('targetPt').addEventListener('change', function() {
+  document.getElementById('customPtField').style.display = this.value==='custom' ? '' : 'none';
   render(); saveData();
 });
 
-const settingIds=['startDate','stageDiff','ssrCount','srCount','rCount','diamondCount','shumai','bentoCount','currentPt','customPt'];
-settingIds.forEach(id=>{
-  document.getElementById(id).addEventListener('input',()=>{ render(); saveData(); });
-});
+// startDate は change イベントで処理（input だと途中入力で誤発火する）
+document.getElementById('startDate').addEventListener('change', () => { render(); saveData(); });
 
-if(!document.getElementById('startDate').value){
-  document.getElementById('startDate').value=new Date().toISOString().slice(0,10);
+['stageDiff','ssrCount','srCount','rCount','diamondCount','shumai','bentoCount','customPt']
+  .forEach(id => document.getElementById(id).addEventListener('input', () => { render(); saveData(); }));
+
+// 保存データがなければ今日をデフォルトにセットして保存
+if (!g('startDate')) {
+  document.getElementById('startDate').value = new Date().toISOString().slice(0,10);
+  saveData();
 }
 
 render();
