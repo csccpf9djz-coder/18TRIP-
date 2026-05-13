@@ -568,7 +568,7 @@ function render() {
       <div class="metric-val" style="font-size:14px">${fmtPt(ptPerAP)}</div>
     </div>
     <div class="metric">
-      <div class="metric-label">剩餘免費AP</div>
+      <div class="metric-label">自然回體AP還有</div>
       <div class="metric-val ${liveCls}" style="font-size:14px" id="liveAP">${liveStr}</div>
       <div class="metric-sub">依現在時間即時計算</div>
     </div>`;
@@ -590,11 +590,11 @@ function render() {
     info += `<div class="status ok">✓ 自然AP＋道具可達標！使用燒賣便當約 <strong>${nb} 個</strong>即可。</div>`;
   } else {
     const needAP = Math.ceil(itemGap / ptPerAP);
-    // ① 不扣除剩餘免費AP（純鑽石購買）
+    // ① 不扣除自然回體AP（純鑽石購買）
     const { cost: costFull, disc: discFull, full: fullFull, discDays, discQuota } = calcDiaCost(needAP);
     const shortFull = Math.max(0, costFull - diamonds);
 
-    // ② 扣除剩餘免費AP後（先用完免費AP再買鑽石）
+    // ② 扣除自然回體AP後（先用完自然回體AP再買鑽石）
     const freeAPLeft = liveAP !== null ? liveAP : 0;
     const needAPAfterFree = Math.max(0, needAP - freeAPLeft);
     const { cost: costAfter, disc: discAfter, full: fullAfter } = calcDiaCost(needAPAfterFree);
@@ -608,11 +608,11 @@ function render() {
 
     info += `<div class="dia-breakdown">
       <b>需追加AP：${fmtPt(needAP)} 次</b>（剩餘 ${discDays} 天，優惠名額還剩 ${fmtPt(discQuota)} 次）<br><br>
-      <span style="color:var(--text);font-weight:600">【不使用剩餘免費AP】</span><br>
+      <span style="color:var(--text);font-weight:600">【不等自然回體直接打完】</span><br>
       　優惠部分（1鑽1AP）：${fmtPt(discFull)} 次 ＝ <b>${fmtPt(discFull)} 鑽</b><br>
       　一般部分（2鑽1AP）：${fmtPt(fullFull)} 次 ＝ <b>${fmtPt(fullFull*2)} 鑽</b><br>
       　合計：<b>${fmtPt(costFull)} 鑽</b>　${shortFull > 0 ? `<span style="color:var(--danger)">（還差 ${fmtPt(shortFull)} 鑽）</span>` : `<span style="color:var(--ok)">（持有足夠）</span>`}<br><br>
-      <span style="color:var(--text);font-weight:600">【使用剩餘 ${liveAP !== null ? fmtPt(freeAPLeft) : '—'} 免費AP】</span><br>
+      <span style="color:var(--text);font-weight:600">【使用自然回體剩餘 ${liveAP !== null ? fmtPt(freeAPLeft) : '—'} AP慢慢打完】</span><br>
       ${liveAP !== null && freeAPLeft > 0
         ? `　先消耗免費AP：${fmtPt(freeAPLeft)} 次，剩需追加：${fmtPt(needAPAfterFree)} 次<br>
       　優惠部分（1鑽1AP）：${fmtPt(discAfter)} 次 ＝ <b>${fmtPt(discAfter)} 鑽</b><br>
