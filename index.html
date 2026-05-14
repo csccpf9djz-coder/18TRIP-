@@ -531,8 +531,8 @@ function render() {
   const freeAP = calcRemainingAP() || 0;
   const withItemPt = currentPt + (freeAP + itemAP) * ptPerAP;
   const remaining  = Math.max(0, target - currentPt);
-  const natGap     = remaining - totalAP * ptPerAP;
-  const itemGap    = remaining - (totalAP + itemAP) * ptPerAP;
+  const natGap     = remaining - freeAP * ptPerAP;
+  const itemGap    = remaining - (freeAP + itemAP) * ptPerAP;
 
   const endDateStr = (() => {
     if (!startDate) return '尚未設定';
