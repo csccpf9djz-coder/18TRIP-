@@ -178,10 +178,10 @@ header .sub { font-size: 12px; color: var(--text3); margin-top: 0.3rem; }
         <label>目標活動pt</label>
         <select id="targetPt">
           <option value="1200000" selected>R卡完凸 120萬pt（班SP／季節）</option>
-          <option value="1310000">R卡①完凸 131萬pt（Feature）</option>
-          <option value="4500000">SR卡完凸 450萬pt（季節）</option>
+          <option value="1310000">R卡完凸 131萬pt（Feature）</option>
+          <option value="4500000">SR完凸 450萬pt（季節）</option>
           <option value="4500018">完走稱號 450萬pt（季節）</option>
-          <option value="5500000">SR卡完凸 550萬pt（班SP／Feature）</option>
+          <option value="5500000">SR完凸 550萬pt（班SP／Feature）</option>
           <option value="5500018">完走稱號 550萬pt（班SP）</option>
           <option value="custom">自訂輸入...</option>
         </select>
@@ -246,11 +246,11 @@ header .sub { font-size: 12px; color: var(--text3); margin-top: 0.3rem; }
         <input type="number" id="diamondCount" value="0" min="0">
       </div>
       <div class="field">
-        <label>燒賣（個，1個＝1AP）</label>
+        <label>燒賣（1個＝1AP）</label>
         <input type="number" id="shumai" value="0" min="0">
       </div>
       <div class="field">
-        <label>燒賣便當（個，1個＝10AP）</label>
+        <label>燒賣便當（1個＝10AP）</label>
         <input type="number" id="bentoCount" value="0" min="0">
       </div>
     </div>
@@ -260,7 +260,7 @@ header .sub { font-size: 12px; color: var(--text3); margin-top: 0.3rem; }
   <div id="infoBox"></div>
 
   <div class="card">
-    <div class="section-label">進度分析</div>
+    <div class="section-label">活動紀錄</div>
     <div class="tab-row">
       <button class="tab active" onclick="showTab('chart',this)">走勢圖</button>
       <button class="tab" onclick="showTab('entry',this)">每日記錄</button>
@@ -272,7 +272,7 @@ header .sub { font-size: 12px; color: var(--text3); margin-top: 0.3rem; }
       <div class="legend" id="chartLegend"></div>
     </div>
     <div id="pane-entry" style="display:none">
-      <div class="hint" style="margin-bottom:10px">每天晚上記錄累計pt，走勢圖將同步更新。資料自動儲存於本機瀏覽器，重新開啟後仍保留。</div>
+      <div class="hint" style="margin-bottom:10px">每天晚上記錄累計pt，走勢圖將同步更新。</div>
       <div class="entry-hdr">
         <span>日期</span><span>累計pt（實績）</span><span>與目標差距</span>
       </div>
@@ -568,7 +568,7 @@ function render() {
 
   // Analysis
   let info = `<div class="card" style="margin-bottom:0.875rem">
-    <div class="section-label">達標分析</div>
+    <div class="section-label">進度分析</div>
     <div style="font-size:13px;color:var(--text2);margin-bottom:5px">
       目標：<span style="color:var(--text);font-weight:600">${fmtPt(target)} pt</span>
       ・現在：<span style="color:var(--text);font-weight:600">${fmtPt(currentPt)} pt</span>
@@ -590,11 +590,7 @@ function render() {
     } else {
       info += `<div class="status warn">⚠ 仍差 <strong>${fmtPt(Math.ceil(itemGap))} pt</strong>，還需額外約 <strong>${fmtPt(short)} 個鑽石</strong>。</div>`;
     }
-    info += `<div class="dia-breakdown">
-      需追加AP：<b>${fmtPt(needAP)} 次</b><br>
-      　優惠部分（每天前10次・1鑽1AP）：${fmtPt(disc)} 次 × 1鑽 ＝ <b>${fmtPt(disc)} 鑽</b><br>
-      　一般部分（11次起・2鑽1AP）：${fmtPt(full)} 次 × 2鑽 ＝ <b>${fmtPt(full*2)} 鑽</b><br>
-      　合計消耗鑽石：<b>${fmtPt(cost)} 個</b>（剩餘 ${discDays} 天，優惠名額還剩 ${fmtPt(discQuota)} 次）
+    
     </div>`;
   }
   info += `</div>`;
