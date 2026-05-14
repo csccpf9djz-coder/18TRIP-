@@ -1,9 +1,9 @@
-原<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>18TRIP 活動計算機</title>
+<title>18TRIP 活動pt計算機</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -448,10 +448,20 @@ function scheduleChartUpdate() {
   clearTimeout(chartTimer);
   chartTimer = setTimeout(() => {
     const target = getTarget();
+    const currentPt = getCurrentPt();
+    const { mult:bonus } = getBonus();
+    const stagePt = parseInt(g('stageDiff')) || 10600;
+    const basePtPerAP2 = PT_BASE * bonus;
+    const stagePtBonus2 = stagePt * bonus;
+    const ptPerBattle2 = 10 * basePtPerAP2 + stagePtBonus2;
+    const needBattles2 = Math.max(0, Math.ceil(Math.max(0, target - currentPt) / ptPerBattle2));
+
     const labels=[], tl=[], el2=[];
     for (let i=0; i<EVENT_DAYS; i++) {
       labels.push(getDayLabel(i));
-      tl.push(Math.round(target / EVENT_DAYS * (i+1)));
+      const dayBattles = Math.ceil(needBattles2 * (i+1) / EVENT_DAYS);
+      const dayAP = dayBattles * TPBATTLE;
+      tl.push(Math.round(currentPt + dayAP * basePtPerAP2 + dayBattles * stagePtBonus2));
       const ep = parseFloat(entryData[i].pt);
       el2.push(entryData[i].pt==='' ? null : Math.round(ep));
     }
@@ -475,11 +485,23 @@ function renderDiff(el, val, cumT) {
 
 function buildEntryRows() {
   const target = getTarget();
+  const currentPt = getCurrentPt();
+  const { mult:bonus } = getBonus();
+  const stagePt2 = parseInt(g('stageDiff')) || 10600;
+  const basePtPerAP2 = PT_BASE * bonus;
+  const stagePtBonus2 = stagePt2 * bonus;
+  const ptPerBattle2 = 10 * basePtPerAP2 + stagePtBonus2;
+  const needBattles2 = Math.max(0, Math.ceil(Math.max(0, target - currentPt) / ptPerBattle2));
+
   const container = document.getElementById('entryRows');
   container.innerHTML = '';
+
   for (let i=0; i<EVENT_DAYS; i++) {
-    // 每天目標 = 目標pt ÷ 9 × 第(i+1)天，與現在累積pt無關
-    const cumT = target / EVENT_DAYS * (i+1);
+    // 每天目標：均等分配場數（整數切り上げ）
+    const dayBattles = Math.ceil(needBattles2 * (i+1) / EVENT_DAYS);
+    const dayAP = dayBattles * TPBATTLE;
+    const cumT = currentPt + dayAP * basePtPerAP2 + dayBattles * stagePtBonus2;
+
     const row = document.createElement('div'); row.className='entry-row';
     const lbl = document.createElement('span'); lbl.className='day-lbl'; lbl.textContent=getDayLabel(i);
     const inp = document.createElement('input');
@@ -504,7 +526,7 @@ function startLiveTicker() {
     if (!el) return;
     const ap = calcRemainingAP();
     if (ap===null) { el.textContent='—'; el.className='metric-val'; return; }
-    el.textContent = fmtPt(ap) + ' AP';
+    el.textContent = fmtPt(ap) + ' 次';
     el.className = 'metric-val ' + (ap > 50 ? 'ok' : 'warn');
   }, 10000);
 }
@@ -527,11 +549,39 @@ function render() {
     days.push({ ap, label: getDayLabel(i) });
   }
 
-  const ptPerAP    = (PT_BASE + stagePt / TPBATTLE) * bonus;
-  const withItemPt = currentPt + (totalAP + itemAP) * ptPerAP;
+  const stagePtWithBonus = stagePt * bonus;   // 活動關卡1場得pt（含加成）
+  const basePtPerAP      = PT_BASE * bonus;    // 一般關卡1AP得pt（含加成）
+
+  // 用整數場次計算：給定AP總量，能打幾場完整活動關卡？
+  function totalPtFromAP(ap) {
+    const battles = Math.floor(ap / TPBATTLE);   // 完整活動關卡場數（整數）
+    return ap * basePtPerAP + battles * stagePtWithBonus;
+  }
+
+  // 要達到目標pt，最少需要幾場活動關卡（整數切り上げ）？
+  // 方程式：需要的AP = needBattles×10，同時一般pt = needBattles×10 × basePtPerAP
+  // 總pt = needBattles×10×basePtPerAP + needBattles×stagePtWithBonus = target
+  // → needBattles = ceil(remaining ÷ (10×basePtPerAP + stagePtWithBonus))
+  const ptPerBattle = 10 * basePtPerAP + stagePtWithBonus; // 每打1場活動關卡貢獻的總pt（含10AP的一般pt）
+  const needBattles  = Math.max(0, Math.ceil(Math.max(0, target - currentPt) / ptPerBattle));
+  const needTotalAP  = needBattles * TPBATTLE;  // 達標需要的總AP（整數）
+
+  // 自然+道具 可以提供多少AP
+  const availAP = totalAP + itemAP;
+
+  // 自然AP單獨能打幾場？
+  const natBattles  = Math.floor(totalAP / TPBATTLE);
+  const natPt       = currentPt + totalAP * basePtPerAP + natBattles * stagePtWithBonus;
+  // 自然+道具 能打幾場？
+  const availBattles = Math.floor(availAP / TPBATTLE);
+  const withItemPt   = currentPt + availAP * basePtPerAP + availBattles * stagePtWithBonus;
+
   const remaining  = Math.max(0, target - currentPt);
-  const natGap     = remaining - totalAP * ptPerAP;
-  const itemGap    = remaining - (totalAP + itemAP) * ptPerAP;
+  const natGap     = needTotalAP - totalAP;   // 自然AP不足量（AP單位）
+  const itemGap    = needTotalAP - availAP;   // 含道具後不足量（AP單位）
+
+  // ptPerAP用於顯示（近似值，用連續公式）
+  const ptPerAP = (PT_BASE + stagePt / TPBATTLE) * bonus;
 
   const endDateStr = (() => {
     if (!startDate) return '尚未設定';
@@ -544,7 +594,7 @@ function render() {
   const pctItem = Math.min(100, Math.round(withItemPt / target * 100));
 
   const liveAP = calcRemainingAP();
-  const liveStr = liveAP !== null ? fmtPt(liveAP) + ' AP' : '—';
+  const liveStr = liveAP !== null ? fmtPt(liveAP) + ' 次' : '—';
   const liveCls = liveAP !== null ? (liveAP > 50 ? 'ok' : 'warn') : '';
 
   // Metrics
@@ -568,7 +618,7 @@ function render() {
       <div class="metric-val" style="font-size:14px">${fmtPt(ptPerAP)}</div>
     </div>
     <div class="metric">
-      <div class="metric-label">自然回體AP還有</div>
+      <div class="metric-label">剩餘自然回體</div>
       <div class="metric-val ${liveCls}" style="font-size:14px" id="liveAP">${liveStr}</div>
       <div class="metric-sub">依現在時間即時計算</div>
     </div>`;
@@ -584,41 +634,29 @@ function render() {
     <div style="font-size:11px;color:var(--text3);margin-bottom:10px">${pct}% 完成・含道具預估可達 ${pctItem}%</div>`;
 
   if (natGap <= 0) {
-    info += `<div class="status ok">✓ 自然回復AP即可達標！還有餘裕 <strong>${fmtPt(-natGap)} pt</strong>，無需消耗鑽石。</div>`;
+    info += `<div class="status ok">✓ 自然回復AP即可達標！無需消耗鑽石。</div>`;
   } else if (itemGap <= 0) {
-    const nb = Math.ceil(natGap / ptPerAP / 10);
-    info += `<div class="status ok">✓ 自然AP＋道具可達標！使用燒賣便當約 <strong>${nb} 個</strong>即可。</div>`;
+    // 道具で何個あれば足りるか（AP単位）
+    const needItemAP = natGap;
+    const needBento2 = Math.ceil(needItemAP / 10);
+    const needShumai2 = needItemAP;
+    info += `<div class="status ok">✓ 自然AP＋道具可達標！使用燒賣便當約 <strong>${needBento2} 個</strong>（或燒賣 ${fmtPt(needShumai2)} 個）即可。</div>`;
   } else {
-    const needAP = Math.ceil(itemGap / ptPerAP);
-    // ① 不扣除自然回體AP（純鑽石購買）
-    const { cost: costFull, disc: discFull, full: fullFull, discDays, discQuota } = calcDiaCost(needAP);
-    const shortFull = Math.max(0, costFull - diamonds);
+    const needAP = itemGap;
+    const { cost, disc, full, discDays, discQuota } = calcDiaCost(needAP);
+    const short = Math.max(0, cost - diamonds);
 
-    // ② 扣除自然回體AP後（先用完自然回體AP再買鑽石）
-    const freeAPLeft = liveAP !== null ? liveAP : 0;
-    const needAPAfterFree = Math.max(0, needAP - freeAPLeft);
-    const { cost: costAfter, disc: discAfter, full: fullAfter } = calcDiaCost(needAPAfterFree);
-    const shortAfter = Math.max(0, costAfter - diamonds);
-
-    if (shortFull === 0) {
+    if (short === 0) {
       info += `<div class="status ok">✓ 道具＋鑽石可達標！詳見下方鑽石用量分析。</div>`;
     } else {
-      info += `<div class="status warn">⚠ 仍差 <strong>${fmtPt(Math.ceil(itemGap))} pt</strong>，鑽石可能不足，詳見下方。</div>`;
+      info += `<div class="status warn">⚠ 仍差 <strong>${fmtPt(remaining)} pt</strong>，鑽石可能不足，詳見下方。</div>`;
     }
 
     info += `<div class="dia-breakdown">
-      <b>需追加AP：${fmtPt(needAP)} 次</b>（剩餘 ${discDays} 天，優惠名額還剩 ${fmtPt(discQuota)} 次）<br><br>
-      <span style="color:var(--text);font-weight:600">【不等自然回體直接打完】</span><br>
-      　優惠部分（1鑽1AP）：${fmtPt(discFull)} 次 ＝ <b>${fmtPt(discFull)} 鑽</b><br>
-      　一般部分（2鑽1AP）：${fmtPt(fullFull)} 次 ＝ <b>${fmtPt(fullFull*2)} 鑽</b><br>
-      　合計：<b>${fmtPt(costFull)} 鑽</b>　${shortFull > 0 ? `<span style="color:var(--danger)">（還差 ${fmtPt(shortFull)} 鑽）</span>` : `<span style="color:var(--ok)">（持有足夠）</span>`}<br><br>
-      <span style="color:var(--text);font-weight:600">【使用自然回體剩餘 ${liveAP !== null ? fmtPt(freeAPLeft) : '—'} AP慢慢打完】</span><br>
-      ${liveAP !== null && freeAPLeft > 0
-        ? `　先消耗免費AP：${fmtPt(freeAPLeft)} 次，剩需追加：${fmtPt(needAPAfterFree)} 次<br>
-      　優惠部分（1鑽1AP）：${fmtPt(discAfter)} 次 ＝ <b>${fmtPt(discAfter)} 鑽</b><br>
-      　一般部分（2鑽1AP）：${fmtPt(fullAfter)} 次 ＝ <b>${fmtPt(fullAfter*2)} 鑽</b><br>
-      　合計：<b>${fmtPt(costAfter)} 鑽</b>　${shortAfter > 0 ? `<span style="color:var(--danger)">（還差 ${fmtPt(shortAfter)} 鑽）</span>` : `<span style="color:var(--ok)">（持有足夠）</span>`}`
-        : `　活動尚未開始或免費AP為0，與上方相同。`}
+      <b>需追加AP：${fmtPt(needAP)} AP</b>（剩餘 ${discDays} 天，優惠AP額度還剩 ${fmtPt(discQuota)} AP）<br>
+      　優惠AP（1鑽1AP）：${fmtPt(disc)} AP ＝ <b>${fmtPt(disc)} 鑽</b><br>
+      　一般部分（2鑽1AP）：${fmtPt(full)} AP ＝ <b>${fmtPt(full*2)} 鑽</b><br>
+      　合計：<b>${fmtPt(cost)} 鑽</b>　${short > 0 ? `<span style="color:var(--danger)">（還差 ${fmtPt(short)} 鑽）</span>` : `<span style="color:var(--ok)">（持有足夠）</span>`}
     </div>`;
   }
   info += `</div>`;
@@ -628,7 +666,10 @@ function render() {
   const labels=[], tl=[], el2=[];
   for (let i=0; i<EVENT_DAYS; i++) {
     labels.push(days[i].label);
-    tl.push(Math.round(target / EVENT_DAYS * (i+1)));
+    // 建議走勢：每天均等目標（整數場切り上げ）
+    const dayTargetBattles = Math.ceil(needBattles * (i+1) / EVENT_DAYS);
+    const dayTargetAP = dayTargetBattles * TPBATTLE;
+    tl.push(Math.round(currentPt + dayTargetAP * basePtPerAP + dayTargetBattles * stagePtWithBonus));
     const ep = parseFloat(entryData[i].pt);
     el2.push(entryData[i].pt==='' ? null : Math.round(ep));
   }
