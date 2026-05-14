@@ -297,7 +297,6 @@ const PT_BASE      = 1800;
 const TPBATTLE     = 10;
 const DISC_PER_DAY = 10;
 
-// ── FIXED bonus arrays (R[6]=10%, not 0) ──
 const SSR_B = [0, 20, 40,  60,  80, 110, 150];
 const SR_B  = [0,  8, 18,  30,  40,  50,  60];
 const R_B   = [0,  2,  3,   4,   5,   7,  10];
@@ -310,7 +309,6 @@ function loadData() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
     const s = JSON.parse(raw);
-    // 只在值非空時才設定，避免覆蓋預設值
     const sv = (id, v) => {
       if (v !== undefined && v !== null && v !== '') {
         document.getElementById(id).value = v;
@@ -331,9 +329,7 @@ function loadData() {
 
 let saveTimer = null;
 function saveData() {
-  // 立刻儲存一次（不延遲），確保資料不會因頁面關閉而遺失
   _doSave();
-  // 同時清除舊的延遲任務
   clearTimeout(saveTimer);
 }
 
@@ -357,7 +353,6 @@ function _doSave() {
 function g(id) { return document.getElementById(id).value; }
 function fmtPt(n) { return Math.round(n).toLocaleString(); }
 
-// 從每日記錄取得最新一筆有效pt（最後一天有值的那筆）
 function getCurrentPt() {
   for (let i = EVENT_DAYS - 1; i >= 0; i--) {
     const v = parseFloat(entryData[i].pt);
@@ -367,9 +362,9 @@ function getCurrentPt() {
 }
 
 function getBonus() {
-  const ssr     = parseInt(g('ssrCount'))    || 0;
-  const sr      = parseInt(g('srCount'))     || 0;
-  const r       = parseInt(g('rCount'))      || 0;
+  const ssr     = parseInt(g('ssrCount'))       || 0;
+  const sr      = parseInt(g('srCount'))        || 0;
+  const r       = parseInt(g('rCount'))         || 0;
   const special = parseFloat(g('specialBonus')) || 0;
   const pct = SSR_B[ssr] + SR_B[sr] + R_B[r] + special;
   return { mult: 1 + pct / 100, pct };
@@ -390,40 +385,31 @@ function getDayAP(i) {
 function getDayLabel(i) {
   const d = g('startDate');
   if (!d) return `D${i+1}`;
-  const dt = new Date(d);
+  const dt = new Date(d + 'T00:00:00');
   dt.setDate(dt.getDate() + i);
   return `${dt.getMonth()+1}/${dt.getDate()}`;
 }
 
-// 計算從現在起還剩幾天的優惠名額（每天前10次 1鑽1AP）
-// 若活動尚未開始 → 用全 EVENT_DAYS 天；活動中 → 從今天算起剩幾天
 function getRemainingDiscDays() {
   const startDate = g('startDate');
   if (!startDate) return EVENT_DAYS;
   const now = new Date();
-
-  // 用 'T00:00:00' 強制當地時間解析，避免時區偏移問題
   const evStart = new Date(startDate + 'T00:00:00');
   evStart.setHours(START_HOUR, 0, 0, 0);
-
   const evEnd = new Date(startDate + 'T00:00:00');
   evEnd.setDate(evEnd.getDate() + EVENT_DAYS - 1);
   evEnd.setHours(END_HOUR, 0, 0, 0);
-
   if (now <= evStart) return EVENT_DAYS;
   if (now >= evEnd)   return 0;
-
-  // 以午夜日曆日期差計算「已過幾天」，避免夏令時等問題
   const startMidnight = new Date(startDate + 'T00:00:00');
   const nowMidnight   = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const daysPassed    = Math.floor((nowMidnight - startMidnight) / 86400000);
-  // 今天仍算剩餘（有優惠），所以剩餘天數 = 總天數 - 已完全過去的天數
   return Math.max(1, EVENT_DAYS - daysPassed);
 }
 
 function calcDiaCost(needAP) {
-  const discDays = getRemainingDiscDays();
-  const discQuota = DISC_PER_DAY * discDays; // 剩餘優惠名額
+  const discDays  = getRemainingDiscDays();
+  const discQuota = DISC_PER_DAY * discDays;
   const disc = Math.min(needAP, discQuota);
   const full  = Math.max(0, needAP - discQuota);
   return { cost: disc + full * 2, disc, full, discDays, discQuota };
@@ -448,49 +434,49 @@ function scheduleChartUpdate() {
   clearTimeout(chartTimer);
   chartTimer = setTimeout(() => {
     const target = getTarget();
-    const labels=[], tl=[], el2=[];
-    for (let i=0; i<EVENT_DAYS; i++) {
+    const labels = [], tl = [], el2 = [];
+    for (let i = 0; i < EVENT_DAYS; i++) {
       labels.push(getDayLabel(i));
-      tl.push(Math.round(target / EVENT_DAYS * (i+1)));
+      tl.push(Math.round(target / EVENT_DAYS * (i + 1)));
       const ep = parseFloat(entryData[i].pt);
-      el2.push(entryData[i].pt==='' ? null : Math.round(ep));
+      el2.push(entryData[i].pt === '' ? null : Math.round(ep));
     }
     if (myChart) {
-      myChart.data.labels=labels;
-      myChart.data.datasets[0].data=tl;
-      myChart.data.datasets[1].data=el2;
+      myChart.data.labels           = labels;
+      myChart.data.datasets[0].data = tl;
+      myChart.data.datasets[1].data = el2;
       myChart.update('none');
     }
   }, 150);
 }
 
 function renderDiff(el, val, cumT) {
-  if (val==='' || val===null) { el.textContent='—'; el.style.color=''; return; }
+  if (val === '' || val === null) { el.textContent = '—'; el.style.color = ''; return; }
   const ep = parseFloat(val);
-  if (isNaN(ep)) { el.textContent='—'; el.style.color=''; return; }
+  if (isNaN(ep)) { el.textContent = '—'; el.style.color = ''; return; }
   const diff = ep - cumT;
-  el.textContent = (diff>=0?'+':'') + fmtPt(diff);
-  el.style.color = diff>=0 ? '#16a34a' : '#dc2626';
+  el.textContent = (diff >= 0 ? '+' : '') + fmtPt(diff);
+  el.style.color = diff >= 0 ? '#16a34a' : '#dc2626';
 }
 
 function buildEntryRows() {
-  const target = getTarget();
+  const target    = getTarget();
   const container = document.getElementById('entryRows');
   container.innerHTML = '';
-  for (let i=0; i<EVENT_DAYS; i++) {
-    // 每天目標 = 目標pt ÷ 9 × 第(i+1)天，與現在累積pt無關
-    const cumT = target / EVENT_DAYS * (i+1);
-    const row = document.createElement('div'); row.className='entry-row';
-    const lbl = document.createElement('span'); lbl.className='day-lbl'; lbl.textContent=getDayLabel(i);
-    const inp = document.createElement('input');
-    inp.className='entry-input'; inp.type='number'; inp.placeholder='輸入pt';
-    inp.setAttribute('inputmode','numeric'); inp.value=entryData[i].pt;
-    const diffDiv = document.createElement('div'); diffDiv.className='diff-cell';
+  for (let i = 0; i < EVENT_DAYS; i++) {
+    const cumT = target / EVENT_DAYS * (i + 1);
+    const row  = document.createElement('div'); row.className = 'entry-row';
+    const lbl  = document.createElement('span'); lbl.className = 'day-lbl'; lbl.textContent = getDayLabel(i);
+    const inp  = document.createElement('input');
+    inp.className = 'entry-input'; inp.type = 'number'; inp.placeholder = '輸入pt';
+    inp.setAttribute('inputmode', 'numeric'); inp.value = entryData[i].pt;
+    const diffDiv = document.createElement('div'); diffDiv.className = 'diff-cell';
     renderDiff(diffDiv, entryData[i].pt, cumT);
-    inp.addEventListener('input', function() {
-      entryData[i].pt=this.value;
+    inp.addEventListener('input', function () {
+      entryData[i].pt = this.value;
       renderDiff(diffDiv, this.value, cumT);
-      scheduleChartUpdate(); saveData();
+      scheduleChartUpdate();
+      saveData();
     });
     row.appendChild(lbl); row.appendChild(inp); row.appendChild(diffDiv);
     container.appendChild(row);
@@ -503,36 +489,42 @@ function startLiveTicker() {
     const el = document.getElementById('liveAP');
     if (!el) return;
     const ap = calcRemainingAP();
-    if (ap===null) { el.textContent='—'; el.className='metric-val'; return; }
+    if (ap === null) { el.textContent = '—'; el.className = 'metric-val'; return; }
     el.textContent = fmtPt(ap) + ' AP';
-    el.className = 'metric-val ' + (ap > 50 ? 'ok' : 'warn');
+    el.className   = 'metric-val ' + (ap > 50 ? 'ok' : 'warn');
   }, 10000);
 }
 
 function render() {
-  const target = getTarget();
-  const { mult:bonus, pct:bonusPct } = getBonus();
+  const target    = getTarget();
+  const { mult: bonus, pct: bonusPct } = getBonus();
   const diamonds  = parseInt(g('diamondCount')) || 0;
-  const stagePt   = parseInt(g('stageDiff'))    || 10600;
+  const stagePt   = parseInt(g('stageDiff'))    || 10500;
   const currentPt = getCurrentPt();
-  const shumai    = parseInt(g('shumai'))        || 0;
-  const bento     = parseInt(g('bentoCount'))    || 0;
+  const shumai    = parseInt(g('shumai'))       || 0;
+  const bento     = parseInt(g('bentoCount'))   || 0;
   const startDate = g('startDate');
 
   const itemAP = shumai + bento * 10;
-  let totalAP = 0;
-  const days = [];
-  for (let i=0; i<EVENT_DAYS; i++) {
+  let totalAP  = 0;
+  const days   = [];
+  for (let i = 0; i < EVENT_DAYS; i++) {
     const ap = getDayAP(i); totalAP += ap;
     days.push({ ap, label: getDayLabel(i) });
   }
 
-  const ptPerAP    = (PT_BASE + stagePt / TPBATTLE) * bonus;
-  calcRemainingAP() || 0
-  const withItemPt = currentPt + (freeAP * ptPerAP) + (itemAP * ptPerAP);
-  const remaining  = Math.max(0, target - currentPt);
-  const natGap     = remaining - freeAP * ptPerAP;
-  const itemGap    = remaining - (freeAP + itemAP) * ptPerAP;
+  const ptPerAP = (PT_BASE + stagePt / TPBATTLE) * bonus;
+
+  // 「含道具預估」使用剩餘自然回體而非全期間AP
+  const liveAP     = calcRemainingAP();
+  const freeAP     = liveAP !== null ? liveAP : totalAP; // 活動中→剩餘；活動前→全期間
+  const withItemPt = currentPt + (freeAP + itemAP) * ptPerAP;
+
+  const remaining = Math.max(0, target - currentPt);
+  // natGap：剩餘自然回體能否達標（pt單位）
+  const natGap    = remaining - freeAP * ptPerAP;
+  // itemGap：加上道具後能否達標（pt單位）
+  const itemGap   = remaining - (freeAP + itemAP) * ptPerAP;
 
   const endDateStr = (() => {
     if (!startDate) return '尚未設定';
@@ -544,11 +536,10 @@ function render() {
   const pct     = Math.min(100, Math.round(currentPt / target * 100));
   const pctItem = Math.min(100, Math.round(withItemPt / target * 100));
 
-  const liveAP = calcRemainingAP();
   const liveStr = liveAP !== null ? fmtPt(liveAP) + ' AP' : '—';
   const liveCls = liveAP !== null ? (liveAP > 50 ? 'ok' : 'warn') : '';
 
-  // Metrics
+  // ── Metrics ──
   document.getElementById('metricRow').innerHTML = `
     <div class="metric">
       <div class="metric-label">活動結束</div>
@@ -562,19 +553,19 @@ function render() {
     <div class="metric">
       <div class="metric-label">自然AP合計</div>
       <div class="metric-val">${fmtPt(totalAP)}</div>
-      <div class="metric-sub">含道具 ${fmtPt(totalAP+itemAP)}</div>
+      <div class="metric-sub">含道具 ${fmtPt(totalAP + itemAP)}</div>
     </div>
     <div class="metric">
       <div class="metric-label">每1AP獲得pt</div>
       <div class="metric-val" style="font-size:14px">${fmtPt(ptPerAP)}</div>
     </div>
     <div class="metric">
-      <div class="metric-label">剩餘免費AP</div>
+      <div class="metric-label">剩餘自然回體</div>
       <div class="metric-val ${liveCls}" style="font-size:14px" id="liveAP">${liveStr}</div>
       <div class="metric-sub">依現在時間即時計算</div>
     </div>`;
 
-  // Analysis
+  // ── Analysis ──
   let info = `<div class="card" style="margin-bottom:0.875rem">
     <div class="section-label">進度分析</div>
     <div style="font-size:13px;color:var(--text2);margin-bottom:5px">
@@ -584,60 +575,54 @@ function render() {
     <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
     <div style="font-size:11px;color:var(--text3);margin-bottom:10px">${pct}% 完成・含道具預估可達 ${pctItem}%</div>`;
 
- if (natGap <= 0) {
-
-  info += `<div class="status ok">✓ 自然回復AP即可達標！還有餘裕 <strong>${fmtPt(-natGap)} pt</strong>，無需消耗鑽石。</div>`;
-
-} else if (itemGap <= 0) {
-
-  const nb = Math.ceil(natGap / ptPerAP / 10);
-
-  info += `<div class="status ok">✓ 自然AP＋道具可達標！使用燒賣便當約 <strong>${nb} 個</strong>即可。</div>`;
-
-} else {
-  const needAP = Math.ceil(itemGap / ptPerAP);
-  const { cost, disc, full } = calcDiaCost(needAP);
-  const short = Math.max(0, cost - diamonds);
-
-  if (short === 0) {
-    info += `<div class="status ok">
-      ✓ 道具＋鑽石可達標！預計消耗約 <strong>${fmtPt(cost)}</strong> 鑽石
-    </div>`;
+  if (natGap <= 0) {
+    info += `<div class="status ok">✓ 自然回復AP即可達標！還有餘裕 <strong>${fmtPt(-natGap)} pt</strong>，無需消耗鑽石。</div>`;
+  } else if (itemGap <= 0) {
+    const nb = Math.ceil(natGap / ptPerAP / 10);
+    info += `<div class="status ok">✓ 自然AP＋道具可達標！使用燒賣便當約 <strong>${nb} 個</strong>即可。</div>`;
   } else {
-    info += `<div class="status warn">
-      ⚠ 仍差 <strong>${fmtPt(Math.ceil(itemGap))} pt</strong>，還需額外約 <strong>${fmtPt(short)}</strong> 鑽石
-    </div>`;
+    const needAP = Math.ceil(itemGap / ptPerAP);
+    const { cost, disc, full } = calcDiaCost(needAP);
+    const short = Math.max(0, cost - diamonds);
+    if (short === 0) {
+      info += `<div class="status ok">✓ 道具＋鑽石可達標！預計消耗約 <strong>${fmtPt(cost)} 個鑽石</strong>（持有 ${fmtPt(diamonds)} 個）。</div>`;
+    } else {
+      info += `<div class="status warn">⚠ 仍差 <strong>${fmtPt(remaining)} pt</strong>，還需額外約 <strong>${fmtPt(short)} 個鑽石</strong>。</div>`;
+    }
   }
-}
+
   info += `</div>`;
   document.getElementById('infoBox').innerHTML = info;
 
-  // Chart
-  const labels=[], tl=[], el2=[];
-  for (let i=0; i<EVENT_DAYS; i++) {
+  // ── Chart ──
+  const labels = [], tl = [], el2 = [];
+  for (let i = 0; i < EVENT_DAYS; i++) {
     labels.push(days[i].label);
-    tl.push(Math.round(target / EVENT_DAYS * (i+1)));
+    tl.push(Math.round(target / EVENT_DAYS * (i + 1)));
     const ep = parseFloat(entryData[i].pt);
-    el2.push(entryData[i].pt==='' ? null : Math.round(ep));
+    el2.push(entryData[i].pt === '' ? null : Math.round(ep));
   }
   if (myChart) myChart.destroy();
   myChart = new Chart(document.getElementById('progressChart'), {
     type: 'line',
     data: { labels, datasets: [
-      { label:'建議走勢', data:tl, borderColor:'#d97706', backgroundColor:'rgba(217,119,6,0.06)', borderWidth:2, pointRadius:3, pointBackgroundColor:'#d97706', tension:.35, fill:true },
-      { label:'實際進度', data:el2, borderColor:'#2563eb', backgroundColor:'transparent', borderWidth:2.5, pointRadius:5, pointBackgroundColor:'#2563eb', tension:.2, fill:false, spanGaps:false }
+      { label: '建議走勢', data: tl,  borderColor: '#d97706', backgroundColor: 'rgba(217,119,6,0.06)', borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#d97706', tension: .35, fill: true },
+      { label: '實際進度', data: el2, borderColor: '#2563eb', backgroundColor: 'transparent',          borderWidth: 2.5, pointRadius: 5, pointBackgroundColor: '#2563eb', tension: .2,  fill: false, spanGaps: false }
     ]},
     options: {
-      responsive:true, maintainAspectRatio:false,
-      interaction:{ mode:'index', intersect:false },
-      plugins:{
-        legend:{ display:false },
-        tooltip:{ backgroundColor:'#fff', borderColor:'#e5e5e3', borderWidth:1, titleColor:'#5a5a56', bodyColor:'#1a1a18', padding:10,
-          callbacks:{ label:(c)=>`${c.dataset.label}: ${fmtPt(c.parsed.y)} pt` } }
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#fff', borderColor: '#e5e5e3', borderWidth: 1,
+          titleColor: '#5a5a56', bodyColor: '#1a1a18', padding: 10,
+          callbacks: { label: (c) => `${c.dataset.label}: ${fmtPt(c.parsed.y)} pt` }
+        }
       },
-      scales:{
-        y:{ ticks:{color:'#9a9a94',callback:(v)=>fmtPt(v),font:{size:10}}, grid:{color:'rgba(0,0,0,0.05)'}, border:{color:'transparent'} },
-        x:{ ticks:{color:'#9a9a94',font:{size:10}}, grid:{color:'rgba(0,0,0,0.03)'}, border:{color:'#e5e5e3'} }
+      scales: {
+        y: { ticks: { color: '#9a9a94', callback: (v) => fmtPt(v), font: { size: 10 } }, grid: { color: 'rgba(0,0,0,0.05)' }, border: { color: 'transparent' } },
+        x: { ticks: { color: '#9a9a94', font: { size: 10 } },                            grid: { color: 'rgba(0,0,0,0.03)' }, border: { color: '#e5e5e3' } }
       }
     }
   });
@@ -645,20 +630,20 @@ function render() {
     <div class="legend-item"><div class="legend-line" style="background:#d97706"></div><span>建議走勢</span></div>
     <div class="legend-item"><div class="legend-line" style="background:#2563eb"></div><span>實際進度</span></div>`;
 
-  // Entry rows
+  // ── Entry rows ──
   buildEntryRows();
 
-  // Bonus table
+  // ── Bonus table ──
   const ssrS = parseInt(g('ssrCount')) || 0;
   const srS  = parseInt(g('srCount'))  || 0;
   const rS   = parseInt(g('rCount'))   || 0;
   let bt = '';
-  for (const [lbl, arr, sel] of [['SSR',SSR_B,ssrS],['SR',SR_B,srS],['R',R_B,rS]]) {
+  for (const [lbl, arr, sel] of [['SSR', SSR_B, ssrS], ['SR', SR_B, srS], ['R', R_B, rS]]) {
     bt += `<div class="bonus-section"><div class="bonus-section-title">${lbl} 特效加成</div>
       <div class="bonus-table-wrap"><table class="bonus-table"><thead><tr>`;
-    for (let i=0; i<=6; i++) bt += `<th>${i}張${i===6?' 完凸':''}</th>`;
+    for (let i = 0; i <= 6; i++) bt += `<th>${i}張${i === 6 ? ' 完凸' : ''}</th>`;
     bt += `</tr></thead><tbody><tr>`;
-    for (let i=0; i<=6; i++) bt += `<td class="${i===sel?'active-cell':''}">${arr[i]}%</td>`;
+    for (let i = 0; i <= 6; i++) bt += `<td class="${i === sel ? 'active-cell' : ''}">${arr[i]}%</td>`;
     bt += `</tr></tbody></table></div></div>`;
   }
   bt += `<div class="bonus-total">
@@ -671,30 +656,28 @@ function render() {
 }
 
 function showTab(name, el) {
-  ['chart','entry','bonustable'].forEach(n => {
-    document.getElementById('pane-'+n).style.display = n===name ? '' : 'none';
+  ['chart', 'entry', 'bonustable'].forEach(n => {
+    document.getElementById('pane-' + n).style.display = n === name ? '' : 'none';
   });
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
 }
 
-// Init
+// ── Init ──
 loadData();
 
-document.getElementById('targetPt').addEventListener('change', function() {
-  document.getElementById('customPtField').style.display = this.value==='custom' ? '' : 'none';
+document.getElementById('targetPt').addEventListener('change', function () {
+  document.getElementById('customPtField').style.display = this.value === 'custom' ? '' : 'none';
   render(); saveData();
 });
 
-// startDate は change イベントで処理（input だと途中入力で誤発火する）
 document.getElementById('startDate').addEventListener('change', () => { render(); saveData(); });
 
-['stageDiff','ssrCount','srCount','rCount','specialBonus','diamondCount','shumai','bentoCount','customPt']
+['stageDiff', 'ssrCount', 'srCount', 'rCount', 'specialBonus', 'diamondCount', 'shumai', 'bentoCount', 'customPt']
   .forEach(id => document.getElementById(id).addEventListener('input', () => { render(); saveData(); }));
 
-// 保存データがなければ今日をデフォルトにセットして保存
 if (!g('startDate')) {
-  document.getElementById('startDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('startDate').value = new Date().toISOString().slice(0, 10);
   saveData();
 }
 
