@@ -600,10 +600,21 @@ function render() {
     const { cost: costAfter, disc: discAfter, full: fullAfter } = calcDiaCost(needAPAfterFree);
     const shortAfter = Math.max(0, costAfter - diamonds);
 
-    if (shortFull === 0) {
-      info += `<div class="status ok">✓ 道具＋鑽石可達標！預計消耗約 <strong>${fmtPt(cost)} 個鑽石</strong>（持有 ${fmtPt(diamonds)} 個）。</div>`;
-    } else {
-      info += `<div class="status warn">⚠ 仍差 <strong>${fmtPt(Math.ceil(itemGap))} pt</strong>，還需額外約 <strong>${fmtPt(short)} 個鑽石</strong>。</div>`;
+   if (short === 0) {
+
+    info += `<div class="status ok">
+
+      ✓ 道具＋鑽石可達標！預計消耗約 <strong>${fmtPt(cost)} 個鑽石</strong>（持有 ${fmtPt(diamonds)} 個）。
+
+    </div>`;
+
+  } else {
+
+    info += `<div class="status warn">
+
+      ⚠ 仍差 <strong>${fmtPt(Math.ceil(itemGap))} pt</strong>，還需額外約 <strong>${fmtPt(short)} 個鑽石</strong>。
+
+    </div>`;
     }
 
    
