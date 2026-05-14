@@ -601,25 +601,12 @@ function render() {
     const shortAfter = Math.max(0, costAfter - diamonds);
 
     if (shortFull === 0) {
-      info += `<div class="status ok">✓ 道具＋鑽石可達標！詳見下方鑽石用量分析。</div>`;
+      info += `<div class="status ok">✓ 道具＋鑽石可達標！預計消耗約 <strong>${fmtPt(cost)} 個鑽石</strong>（持有 ${fmtPt(diamonds)} 個）。</div>`;
     } else {
-      info += `<div class="status warn">⚠ 仍差 <strong>${fmtPt(Math.ceil(itemGap))} pt</strong>，鑽石可能不足，詳見下方。</div>`;
+      info += `<div class="status warn">⚠ 仍差 <strong>${fmtPt(Math.ceil(itemGap))} pt</strong>，還需額外約 <strong>${fmtPt(short)} 個鑽石</strong>。</div>`;
     }
 
-    info += `<div class="dia-breakdown">
-      <b>需追加AP：${fmtPt(needAP)} 次</b>（剩餘 ${discDays} 天，優惠名額還剩 ${fmtPt(discQuota)} 次）<br><br>
-      <span style="color:var(--text);font-weight:600">【不使用剩餘免費AP】</span><br>
-      　優惠部分（1鑽1AP）：${fmtPt(discFull)} 次 ＝ <b>${fmtPt(discFull)} 鑽</b><br>
-      　一般部分（2鑽1AP）：${fmtPt(fullFull)} 次 ＝ <b>${fmtPt(fullFull*2)} 鑽</b><br>
-      　合計：<b>${fmtPt(costFull)} 鑽</b>　${shortFull > 0 ? `<span style="color:var(--danger)">（還差 ${fmtPt(shortFull)} 鑽）</span>` : `<span style="color:var(--ok)">（持有足夠）</span>`}<br><br>
-      <span style="color:var(--text);font-weight:600">【使用剩餘 ${liveAP !== null ? fmtPt(freeAPLeft) : '—'} 免費AP】</span><br>
-      ${liveAP !== null && freeAPLeft > 0
-        ? `　先消耗免費AP：${fmtPt(freeAPLeft)} 次，剩需追加：${fmtPt(needAPAfterFree)} 次<br>
-      　優惠部分（1鑽1AP）：${fmtPt(discAfter)} 次 ＝ <b>${fmtPt(discAfter)} 鑽</b><br>
-      　一般部分（2鑽1AP）：${fmtPt(fullAfter)} 次 ＝ <b>${fmtPt(fullAfter*2)} 鑽</b><br>
-      　合計：<b>${fmtPt(costAfter)} 鑽</b>　${shortAfter > 0 ? `<span style="color:var(--danger)">（還差 ${fmtPt(shortAfter)} 鑽）</span>` : `<span style="color:var(--ok)">（持有足夠）</span>`}`
-        : `　活動尚未開始或免費AP為0，與上方相同。`}
-    </div>`;
+   
   }
   info += `</div>`;
   document.getElementById('infoBox').innerHTML = info;
