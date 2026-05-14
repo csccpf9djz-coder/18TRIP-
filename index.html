@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>18TRIP 活動pt計算機</title>
+<title>18TRIP 活動計算機</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -240,7 +240,7 @@ header .sub { font-size: 12px; color: var(--text3); margin-top: 0.3rem; }
         </select>
       </div>
       <div class="field">
-        <label>特殊（週年活動）</label>
+        <label>特殊（週年活動）自行輸入</label>
         <input type="number" id="specialBonus" value="0" min="0" placeholder="例：50">
       </div>
     </div>
@@ -251,11 +251,11 @@ header .sub { font-size: 12px; color: var(--text3); margin-top: 0.3rem; }
         <input type="number" id="diamondCount" value="0" min="0">
       </div>
       <div class="field">
-        <label>燒賣（1個＝1AP）</label>
+        <label>燒賣（個，1個＝1AP）</label>
         <input type="number" id="shumai" value="0" min="0">
       </div>
       <div class="field">
-        <label>燒賣便當（1個＝10AP）</label>
+        <label>燒賣便當（個，1個＝10AP）</label>
         <input type="number" id="bentoCount" value="0" min="0">
       </div>
     </div>
@@ -634,30 +634,20 @@ function render() {
     <div style="font-size:11px;color:var(--text3);margin-bottom:10px">${pct}% 完成・含道具預估可達 ${pctItem}%</div>`;
 
   if (natGap <= 0) {
-    info += `<div class="status ok">✓ 自然回復AP即可達標！無需消耗鑽石。</div>`;
+    info += `<div class="status ok">✓ 自然回復AP即可達標！還有餘裕 <strong>${fmtPt(-natGap * ptPerAP)} pt</strong>，無需消耗鑽石。</div>`;
   } else if (itemGap <= 0) {
-    // 道具で何個あれば足りるか（AP単位）
-    const needItemAP = natGap;
-    const needBento2 = Math.ceil(needItemAP / 10);
-    const needShumai2 = needItemAP;
-    info += `<div class="status ok">✓ 自然AP＋道具可達標！使用燒賣便當約 <strong>${needBento2} 個</strong>（或燒賣 ${fmtPt(needShumai2)} 個）即可。</div>`;
+    const needBento2 = Math.ceil(natGap / 10);
+    info += `<div class="status ok">✓ 自然AP＋道具可達標！使用燒賣便當約 <strong>${needBento2} 個</strong>即可。</div>`;
   } else {
     const needAP = itemGap;
     const { cost, disc, full, discDays, discQuota } = calcDiaCost(needAP);
     const short = Math.max(0, cost - diamonds);
 
     if (short === 0) {
-      info += `<div class="status ok">✓ 道具＋鑽石可達標！詳見下方鑽石用量分析。</div>`;
+      info += `<div class="status ok">✓ 道具＋鑽石可達標！預計消耗約 <strong>${fmtPt(cost)} 個鑽石</strong>（持有 ${fmtPt(diamonds)} 個）。</div>`;
     } else {
-      info += `<div class="status warn">⚠ 仍差 <strong>${fmtPt(remaining)} pt</strong>，鑽石可能不足，詳見下方。</div>`;
+      info += `<div class="status warn">⚠ 仍差 <strong>${fmtPt(remaining)} pt</strong>，還需額外約 <strong>${fmtPt(short)} 個鑽石</strong>。</div>`;
     }
-
-    info += `<div class="dia-breakdown">
-      <b>需追加AP：${fmtPt(needAP)} AP</b>（剩餘 ${discDays} 天，優惠AP額度還剩 ${fmtPt(discQuota)} AP）<br>
-      　優惠AP（1鑽1AP）：${fmtPt(disc)} AP ＝ <b>${fmtPt(disc)} 鑽</b><br>
-      　一般部分（2鑽1AP）：${fmtPt(full)} AP ＝ <b>${fmtPt(full*2)} 鑽</b><br>
-      　合計：<b>${fmtPt(cost)} 鑽</b>　${short > 0 ? `<span style="color:var(--danger)">（還差 ${fmtPt(short)} 鑽）</span>` : `<span style="color:var(--ok)">（持有足夠）</span>`}
-    </div>`;
   }
   info += `</div>`;
   document.getElementById('infoBox').innerHTML = info;
