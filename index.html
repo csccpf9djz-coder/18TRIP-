@@ -529,7 +529,7 @@ function render() {
 
   const ptPerAP    = (PT_BASE + stagePt / TPBATTLE) * bonus;
   const freeAP = calcRemainingAP() || 0;
-  const withItemPt = currentPt + (freeAP + itemAP) * ptPerAP;
+  const withItemPt = currentPt + (freeAP * ptPerAP) + (itemAP * ptPerAP);
   const remaining  = Math.max(0, target - currentPt);
   const natGap     = remaining - freeAP * ptPerAP;
   const itemGap    = remaining - (freeAP + itemAP) * ptPerAP;
