@@ -668,7 +668,7 @@ function render(){
   for(const[lbl,arr,sel]of[['SSR',SSR_B,ssrS],['SR',SR_B,srS],['R',R_B,rS]]){
     bt+=`<div class="bonus-section"><div class="bonus-section-title">${lbl} ${t('cards')}</div>
       <div class="bonus-table-wrap"><table class="bonus-table"><thead><tr>`;
-    for(let i=0;i<=6;i++)bt+=`<th>${i}${i===6?' '+t('maxed'):''}${LANG==='zh'?'張':LANG==='ja'?'枚':''}</th>`;
+    for(let i=0;i<=6;i++)bt+=`<th>${i}${LANG==='zh'?'張':LANG==='ja'?'枚':''}${i===6?' '+t('maxed'):''}</th>`;
     bt+=`</tr></thead><tbody><tr>`;
     for(let i=0;i<=6;i++)bt+=`<td class="${i===sel?'active-cell':''}">${arr[i]}%</td>`;
     bt+=`</tr></tbody></table></div></div>`;
